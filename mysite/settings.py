@@ -29,7 +29,7 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost', 'toolhub-11f45e3adc69.herokuapp.com', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', 'toolhub-11f45e3adc69.herokuapp.com', '127.0.0.1', '0.0.0.0']
 
 # Application definition
 
@@ -116,6 +116,7 @@ if 'HEROKU' in os.environ:
     # When running on Heroku, use DATABASE_URL from Heroku's config variable
     DATABASES = {
         'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
             conn_max_age=600,
             conn_health_checks=True,
             ssl_require=True,
@@ -181,6 +182,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 try:
     if 'HEROKU' in os.environ:
         import django_heroku
-        django_heroku.settings(locals())
+        django_heroku.settings(locals(), databases=False)
+        # Without databases=False, django-heroku reconfigures DATABASES based on its defaults (SQLite)
 except ImportError:
     pass
