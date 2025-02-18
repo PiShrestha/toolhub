@@ -1,0 +1,11 @@
+{% extends 'toolhub/base.html' %}
+
+{% block title %}Login Page{% endblock %}
+
+{% block content %}
+<div>
+    {% load socialaccount %}
+    <h2>Google Login</h2>
+    <a href="{% provider_login_url 'google' %}?next=/">Login with Google</a>
+</div>
+{% endblock %}
