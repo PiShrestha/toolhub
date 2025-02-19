@@ -1,0 +1,9 @@
+{% extends 'toolhub/base.html' %}
+
+{% block title %}Librarian Dashboard{% endblock %}
+
+{% block content %}
+    <h2>Welcome, Librarian {{ user.first_name }}</h2>
+    <p>You have administrator privileges.</p>
+    <a href="{% url 'logout' %}">Logout</a>
+{% endblock %}

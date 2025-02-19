@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'toolhub',
     'django.contrib.sites',  # Required by allauth
     'allauth',
@@ -186,3 +185,5 @@ try:
         # Without databases=False, django-heroku reconfigures DATABASES based on its defaults (SQLite)
 except ImportError:
     pass
+#tells Django to use model
+AUTH_USER_MODEL = 'toolhub.CustomUser'
