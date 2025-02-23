@@ -4,9 +4,9 @@
 
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; padding: 20px;">
-    <div class="login-container" style="max-width: 380px; width: 100%; padding: 25px; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
-        <h3 class="text-center mb-3">Welcome Back</h3>
-        <p class="text-center text-muted">Sign in to continue</p>
+    <div class="signup-container" style="max-width: 380px; width: 100%; padding: 25px; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+        <h3 class="text-center mb-3">Create an Account</h3>
+        <p class="text-center text-muted">Sign up to get started</p>
 
         <!-- Display error messages -->
         {% if form.errors %}
@@ -41,23 +41,19 @@
                 </div>
             {% endfor %}
 
-            <button type="submit" class="btn btn-primary w-100 py-2">Sign In</button>
+            <button type="submit" class="btn btn-primary w-100 py-2">Sign Up</button>
         </form>
-
-        <div class="text-center mt-3">
-            <a href="{% url 'account_reset_password' %}" class="text-muted">Forgot your password?</a>
-        </div>
 
         <hr>
 
         <div class="text-center">
             <a href="{% provider_login_url 'google' %}" class="btn btn-danger w-100 py-2">
-                <i class="fab fa-google"></i> Sign in with Google
+                <i class="fab fa-google"></i> Sign up with Google
             </a>
         </div>
 
         <p class="text-center mt-3">
-            Don't have an account? <a href="{% url 'account_signup' %}" class="text-primary">Sign up</a>
+            Already have an account? <a href="{% url 'account_login' %}" class="text-primary">Sign in</a>
         </p>
     </div>
 </div>
@@ -78,9 +74,6 @@
         outline: none;
         border-color: #007bff;
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
-    }
-    input[name="remember"], label[for="id_remember"] {
-        display: none !important;
     }
 </style>
 

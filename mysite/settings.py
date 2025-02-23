@@ -28,6 +28,9 @@ SECRET_KEY = os.environ.get(
     'django-insecure-h#h^6ijquf3l4q)!*6drfg&lh$#+pmw(whcdb34r4b762tlhk#'
 )
 
+# FOR TESTING!!!
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 

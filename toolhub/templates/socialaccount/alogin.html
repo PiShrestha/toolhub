@@ -1,0 +1,63 @@
+{% extends "toolhub/base.html" %}
+{% load static %}
+{% load socialaccount %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Continue with Google</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-container {
+            max-width: 400px;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .google-btn {
+            background-color: #db4437;
+            color: white;
+            font-weight: bold;
+        }
+        .google-btn:hover {
+            background-color: #c1351d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h3 class="text-center">Continue with Google</h3>
+    <p class="text-center text-muted">You're about to sign in using your Google account.</p>
+
+    <form method="post" action="{% url 'socialaccount_connections' %}">
+        {% csrf_token %}
+        <input type="hidden" name="process" value="connect">
+        
+        <button type="submit" class="btn google-btn w-100">
+            <i class="fa fa-google"></i> Continue to Google
+        </button>
+    </form>
+
+    <hr>
+    
+    <p class="text-center mt-3">
+        <a href="{% url 'account_login' %}" class="text-muted">Back to Login</a>
+    </p>
+</div>
+
+</body>
+</html>
+{% endblock %}
