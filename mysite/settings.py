@@ -69,6 +69,7 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = '/'  # Redirect users after login
 LOGOUT_REDIRECT_URL = '/'  # Redirect users after logout
 
@@ -94,7 +95,7 @@ ROOT_URLCONF = 'mysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [str(BASE_DIR / 'toolhub'  / 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
