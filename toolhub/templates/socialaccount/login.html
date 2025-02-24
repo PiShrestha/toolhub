@@ -1,41 +1,36 @@
 {% extends "toolhub/base.html" %}
-{% load static %}
+
+{% load i18n %}
 {% load socialaccount %}
 
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; padding: 20px;">
     <div class="login-container" style="max-width: 400px; width: 100%; padding: 25px; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); text-align: center;">
-        <h3 class="text-center">Continue with Google</h3>
-        <p class="text-center text-muted">You're about to sign in using your Google account.</p>
+        <h3 class="text-center">{% trans "Sign In" %}</h3>
 
-        <!-- Display error messages (if any) -->
-        {% if messages %}
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
+        {% if process == "connect" %}
+            <p class="text-muted">{% blocktrans with provider.name as provider %}You are about to connect a new account from {{ provider }}.{% endblocktrans %}</p>
+        {% else %}
+            <p class="text-muted">{% blocktrans with provider.name as provider %}You are about to sign in using your {{ provider }} account.{% endblocktrans %}</p>
         {% endif %}
 
-        <!-- Google Sign-In Button -->
-        <a href="{% provider_login_url 'google' process='login' %}" class="btn google-btn w-100 py-2">
-            <i class="fab fa-google"></i> Continue with Google
-        </a>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn google-btn w-100 py-2">
+                <i class="fab fa-google"></i> {% trans "Continue with Google" %}
+            </button>
+        </form>
 
         <hr>
-        
+
         <p class="text-center mt-3">
-            <a href="{% url 'account_login' %}" class="text-muted">Back to Login</a>
+            <a href="{% url 'account_login' %}" class="text-muted">{% trans "Back to Login" %}</a>
         </p>
     </div>
 </div>
 
-<!-- Include FontAwesome for icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-<!-- Improved styling -->
 <style>
     .google-btn {
         background-color: #db4437;
@@ -44,11 +39,17 @@
         border-radius: 5px;
         font-size: 16px;
         text-decoration: none;
-        display: inline-block;
-        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: none;
     }
     .google-btn:hover {
         background-color: #c1351d;
+    }
+    .google-btn i {
+        font-size: 18px;
     }
 </style>
 
