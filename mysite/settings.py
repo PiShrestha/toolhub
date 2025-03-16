@@ -14,7 +14,7 @@ import os
 import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
-from google.auth.environment_vars import AWS_ACCESS_KEY_ID, AWS_DEFAULT_REGION
+# from google.auth.environment_vars import AWS_ACCESS_KEY_ID, AWS_DEFAULT_REGION
 
 load_dotenv()
 
@@ -175,7 +175,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "toolhub", "static"),
+]
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "toolhub", "media")
+MEDIA_URL = "media/"
 
 # Additional static file settings for production with WhiteNoise
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
