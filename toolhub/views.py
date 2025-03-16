@@ -12,3 +12,6 @@ def home(request):
 def logoutView(request):
     logout(request)
     return redirect("/")
+
+def profileView(request):
+    return render(request, "toolhub/profile.html", {"user": request.user})

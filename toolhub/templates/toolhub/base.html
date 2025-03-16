@@ -19,8 +19,15 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
-
                 max-height: 80%;
+            }
+            /* Open dropdown on hover */
+            .dropdown:hover .dropdown-menu {
+                display: block;
+                margin-top: 5%;
+                width: 125px;
+                min-width: unset; 
+                transform: translateX(-35%);
             }
             footer {
                 background: #f8f9fa;
@@ -32,9 +39,27 @@
     </head>
 
     <body>
-        <header class="bg-light p-3 text-center">
-            <h2>ToolHub</h2>
-        </header>
+        <header class="bg-light p-3">
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container d-flex justify-content-between align-items-center">
+                    <!-- Logo and Title -->
+                    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                        <img src="{% static 'toolhub/images/logo.png' %}" alt="logo" width="35" height="35" class="me-2">
+                        <span>Toolhub</span>
+                    </a>
+                    <!-- My Profile button -->
+                    <div class = "dropdown">
+                        <a class="dropdown toggle" id = "dropDown" data-bs-auto-close="outside" aria-expanded="true">
+                            <img src="{% static 'toolhub/images/profile.png' %}" alt="Profile" width="35" height="35" class="rounded-circle">
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dropDown">
+                            <li><a class="dropdown-item text-center" href="{% url 'profile' %}">Account</a></li>
+                            <li><a class="dropdown-item text-center" href="{% url 'logout' %}">Sign Out</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>        
 
         <div class="container content">
             {% block content %}{% endblock %}
