@@ -5,8 +5,14 @@
 
 {% block content %}
 
-<p1>
-    This for uploading pictures
-</p1>
+<div>
+    <h2>Upload Profile Picture</h2>
+    <form method = "post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+</div>
+
 
 {% endblock %}

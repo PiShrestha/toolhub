@@ -5,11 +5,13 @@
 {% block content %}
 <div class= "center">
     <h2>This is Profile page for {{user.first_name}}</h2>
-    {% if user.profile_picture %}
-        <img src="{{ user.profile_picture.url }}" alt="Profile Picture" width="150">
-    {% else %}
-        <img src="/media/profile_pictures/default.png" alt="Default Profile Picture" width="150">
-    {% endif %}
+    <div>
+        {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="Profile Picture" width="150" class="rounded-circle">
+        {% else %}
+            <img src="/media/profile_pictures/default.png" alt="Default Profile Picture" width="150" class="rounded-circle">
+        {% endif %}
+    </div>
     <br>
     <a href="{% url 'upload_profile_picture' %}" class="btn btn-secondary">
         Change Profile Picture
