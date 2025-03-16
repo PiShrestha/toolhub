@@ -8,10 +8,13 @@ class CustomUser(AbstractUser):
         ('librarian', 'Librarian'),
     ]
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='patron')
+
+    def default_profile_picture():
+        return "profile_pictures/default.png"
     
     profile_picture = models.ImageField(
         upload_to= 'profile_pictures/',
-        default=lambda: "profile_pictures/default.png",
+        default= default_profile_picture,
         null= True, 
         blank= True
         )
