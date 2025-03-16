@@ -1,3 +1,24 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+import os
 
-# Create your models here.
+class CustomUser(AbstractUser):
+    ROLE_CHOICES = [
+        ('patron', 'Patron'),
+        ('librarian', 'Librarian'),
+    ]
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='patron')
+
+    def default_profile_picture():
+        return "profile_pictures/default.png"
+    
+    profile_picture = models.ImageField(
+        upload_to= 'profile_pictures/',
+        default= default_profile_picture,
+        null= True, 
+        blank= True
+        )
+
+class Item(models.Model):
+    name = models.CharField(max_length=255)
+    image = models.ImageField(upload_to='images/', blank=True, null=True)

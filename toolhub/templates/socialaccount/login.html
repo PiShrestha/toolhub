@@ -1,0 +1,56 @@
+{% extends "toolhub/base.html" %}
+
+{% load i18n %}
+{% load socialaccount %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; padding: 20px;">
+    <div class="login-container" style="max-width: 400px; width: 100%; padding: 25px; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); text-align: center;">
+        <h3 class="text-center">{% trans "Sign In" %}</h3>
+
+        {% if process == "connect" %}
+            <p class="text-muted">{% blocktrans with provider.name as provider %}You are about to connect a new account from {{ provider }}.{% endblocktrans %}</p>
+        {% else %}
+            <p class="text-muted">{% blocktrans with provider.name as provider %}You are about to sign in using your {{ provider }} account.{% endblocktrans %}</p>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn google-btn w-100 py-2">
+                <i class="fab fa-google"></i> {% trans "Continue with Google" %}
+            </button>
+        </form>
+
+        <hr>
+
+        <p class="text-center mt-3">
+            <a href="{% url 'account_login' %}" class="text-muted">{% trans "Back to Login" %}</a>
+        </p>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    .google-btn {
+        background-color: #db4437;
+        color: white;
+        font-weight: bold;
+        border-radius: 5px;
+        font-size: 16px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: none;
+    }
+    .google-btn:hover {
+        background-color: #c1351d;
+    }
+    .google-btn i {
+        font-size: 18px;
+    }
+</style>
+
+{% endblock %}

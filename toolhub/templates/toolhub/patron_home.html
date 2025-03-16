@@ -1,0 +1,14 @@
+{% extends 'toolhub/base.html' %}
+
+{% block title %}Patron Dashboard{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h2 class="mb-3">Welcome, Patron {{ user.first_name }}</h2>
+        
+        <p class="mb-1"><strong>You can browse and borrow books.</strong></p>
+        <p class="mb-1"><strong>Account Email:</strong> {{ user.email }}</p>
+        <p class="mb-3"><strong>Username:</strong> {{ user.username }}</p>
+
+    </div>
+{% endblock %}

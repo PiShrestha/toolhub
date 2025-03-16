@@ -1,0 +1,73 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+        <title>{% block title %}ToolHub{% endblock %}</title>
+
+        <style>
+            html, body {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            .content {
+                flex: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                max-height: 80%;
+            }
+            /* Open dropdown on hover */
+            .dropdown:hover .dropdown-menu {
+                display: block;
+                margin-top: 5%;
+                width: 125px;
+                min-width: unset; 
+                transform: translateX(-35%);
+            }
+            footer {
+                background: #f8f9fa;
+                text-align: center;
+                padding: 10px 0;
+                width: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header class="bg-light p-3">
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container d-flex justify-content-between align-items-center">
+                    <!-- Logo and Title -->
+                    <a class="navbar-brand d-flex align-items-center fs-2" href="{% url 'home' %}">
+                        <img src="{% static 'toolhub/images/logo.png' %}" alt="logo" width="35" height="35" class="me-2">
+                        <span>Toolhub</span>
+                    </a>
+                    <!-- My Profile button -->
+                    <div class = "dropdown">
+                        <a class="dropdown toggle" id = "dropDown" data-bs-auto-close="outside" aria-expanded="true">
+                            <img src="{% static 'toolhub/images/profile.png' %}" alt="Profile" width="35" height="35" class="rounded-circle">
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dropDown">
+                            <li><a class="dropdown-item text-center" href="{% url 'profile' %}">Account</a></li>
+                            <li><a class="dropdown-item text-center" href="{% url 'logout' %}">Sign Out</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>        
+
+        <div class="container content">
+            {% block content %}{% endblock %}
+        </div>
+
+        <footer class="mt-auto fs-4">
+            <p>Built by B-04.</p>
+        </footer>
+    </body>
+</html>
