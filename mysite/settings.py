@@ -130,6 +130,18 @@ if 'HEROKU' in os.environ:
             ssl_require=True,
         )
     }
+elif "GITHUB_ACTIONS" in os.environ:  
+    # Running in GitHub Actions CI
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'toolhub_test_db',
+            'USER': 'testuser',
+            'PASSWORD': 'testpass',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
 else:
     # For local development, always use SQLite
     DATABASES = {
