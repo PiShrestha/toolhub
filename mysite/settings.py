@@ -135,7 +135,7 @@ elif "GITHUB_ACTIONS" in os.environ:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'toolhub_test_db',
+            'NAME': 'postgres', # default DB
             'USER': 'testuser',
             'PASSWORD': 'testpass',
             'HOST': 'localhost',
