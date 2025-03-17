@@ -8,6 +8,7 @@ urlpatterns = [
     path('logout', views.logoutView, name="logout"), # Allauth handles authentication
     path('profile/', views.profileView, name="profile"),
     path("profile/upload-profile-picture/", views.uploadPicture, name="upload_profile_picture"),
+    path('profile/clear-profile-picture/', views.clear_profile_picture, name='clear_profile_picture'),
 ]
 
 # Needed in development (DEBUG=True) because Django does not serve media files automatically.

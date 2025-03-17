@@ -1,18 +1,51 @@
 {% extends 'toolhub/base.html' %}
+{% load static %}
+{{ form.profile_picture }}
 
-{% block title %}Profile{% endblock %}
-
+{% block title %}Update Profile Picture{% endblock %}
 
 {% block content %}
-
-<div>
-    <h2>Upload Profile Picture</h2>
-    <form method = "post" enctype="multipart/form-data">
+<div class="container mt-4">
+    <h2 class="mb-3">Update Profile Picture</h2>
+    
+    {% if user.profile_picture %}
+    <div class="mb-3">
+        <p>Current Profile Picture:</p>
+        <img src="{{ user.profile_picture.url }}" alt="Current Profile Picture" width="150" class="rounded-circle border">
+    </div>
+    {% else %}
+    <div class="mb-3">
+        <p>You have not set a profile picture yet. A default image is displayed.</p>
+        <img src="{% static 'toolhub/images/default.png' %}" alt="Default Profile Picture" width="150" class="rounded-circle border">
+    </div>
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data" class="border p-4 rounded mb-3">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="mb-3">
+            <label for="{{ form.profile_picture.id_for_label }}" class="form-label">Choose a new profile picture:</label>
+            {{ form.profile_picture }}
+            {% if form.profile_picture.errors %}
+            <div class="text-danger">
+                {{ form.profile_picture.errors }}
+            </div>
+            {% endif %}
+        </div>
         <button type="submit" class="btn btn-primary">Upload</button>
     </form>
+    
+    <div>
+    <!-- Clear Profile Picture Button -->
+    {% if user.profile_picture %}
+    <form method="post" action="{% url 'clear_profile_picture' %}" class="mb-3">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Clear Profile Picture</button>
+    </form>
+    {% endif %}
+
+    <!-- Back button linking to the 'profile' page -->
+    <a href="{% url 'profile' %}" class="btn btn-secondary">Back</a>
+    </div>
+    
 </div>
-
-
 {% endblock %}

@@ -33,3 +33,13 @@ def uploadPicture(request):
         form = ProfilePictureForm(instance=request.user)
     
     return render(request, "toolhub/upload_picture.html", {"form": form})
+
+@login_required
+def clear_profile_picture(request):
+    if request.method == "POST":
+        if request.user.profile_picture:
+            request.user.profile_picture.delete(save=False)
+        request.user.profile_picture = None
+        request.user.save()
+        messages.success(request, "Your profile picture has been cleared.")
+    return redirect('profile')
