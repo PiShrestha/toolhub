@@ -3,7 +3,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import CustomUser
-from .forms import ProfilePictureForm
+from .forms import ProfilePictureForm, UserProfileForm
 
 # Create your views here.
 @login_required
@@ -43,3 +43,17 @@ def clear_profile_picture(request):
         request.user.save()
         messages.success(request, "Your profile picture has been cleared.")
     return redirect('profile')
+
+@login_required
+def update_profile(request):
+    if request.method == "POST":
+        form = UserProfileForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your profile information has been updated!")
+            return redirect('profile')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = UserProfileForm(instance=request.user)
+    return render(request, "toolhub/profile_update.html", {"form": form})
