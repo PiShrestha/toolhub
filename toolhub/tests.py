@@ -89,7 +89,7 @@ class CustomUserModelTests(TestCase):
 
         self.user.profile_picture = None
         self.user.save()
-        default_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/profile_pictures/default.png"
+        default_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/toolhub/images/default.png"
         self.assertEqual(self.user.profile_picture_url, default_url)
 
 
