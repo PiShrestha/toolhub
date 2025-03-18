@@ -16,11 +16,12 @@ class CustomUser(AbstractUser):
     phone_number = models.CharField(max_length=15, blank=True, null=True)
 
     def default_profile_picture():
-        return "profile_pictures/default.png"
+        return "toolhub/images/default.png"
     
     profile_picture = models.ImageField(
         upload_to=upload_to_profile,
         default= default_profile_picture,
+        storage=settings.DEFAULT_FILE_STORAGE,
         null= True, 
         blank= True
         )
