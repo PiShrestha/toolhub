@@ -202,11 +202,11 @@ AWS_DEFAULT_ACL = None
 AWS_S3_REGION_NAME = 'us-east-2'
 
 AWS_LOCATION = 'static'
-AWS_MEDIA_LOCATION = 'media'
+AWS_MEDIA_LOCATION = ''
 
 DEFAULT_FILE_STORAGE = 'mysite.storage_backends.MediaStorage'
 # even in development environment, Profile Pictures will be stored in S3
-MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{AWS_MEDIA_LOCATION}/'
+MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/'
 
 # Use S3 for static files in production, WhiteNoise in development
 if 'HEROKU' in os.environ:

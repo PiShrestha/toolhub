@@ -1,51 +1,61 @@
 {% extends 'toolhub/base.html' %}
 {% load static %}
-{{ form.profile_picture }}
 
 {% block title %}Update Profile Picture{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-3">Update Profile Picture</h2>
-    
-    {% if user.profile_picture %}
-    <div class="mb-3">
-        <p>Current Profile Picture:</p>
-        <img src="{{ user.profile_picture.url }}" alt="Current Profile Picture" width="150" class="rounded-circle border">
-    </div>
-    {% else %}
-    <div class="mb-3">
-        <p>You have not set a profile picture yet. A default image is displayed.</p>
-        <img src="{% static 'toolhub/images/default.png' %}" alt="Default Profile Picture" width="150" class="rounded-circle border">
-    </div>
-    {% endif %}
-    
-    <form method="post" enctype="multipart/form-data" class="border p-4 rounded mb-3">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="{{ form.profile_picture.id_for_label }}" class="form-label">Choose a new profile picture:</label>
-            {{ form.profile_picture }}
-            {% if form.profile_picture.errors %}
-            <div class="text-danger">
-                {{ form.profile_picture.errors }}
-            </div>
-            {% endif %}
-        </div>
-        <button type="submit" class="btn btn-primary">Upload</button>
-    </form>
-    
-    <div>
-    <!-- Clear Profile Picture Button -->
-    {% if user.profile_picture %}
-    <form method="post" action="{% url 'clear_profile_picture' %}" class="mb-3">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Clear Profile Picture</button>
-    </form>
-    {% endif %}
+    <h2 class="ms-5 mb-3">Update Profile Picture</h2>
 
-    <!-- Back button linking to the 'profile' page -->
-    <a href="{% url 'profile' %}" class="btn btn-secondary">Back</a>
-    </div>
+    <div class="row d-flex align-items-center">
     
+        <!-- Left Column: Profile Picture -->
+        <div class="col-md-4 d-flex flex-column align-items-center">
+            <div class="mb-3">
+                <p>Current Profile Picture:</p>
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture_url }}" 
+                         alt="Current Profile Picture" 
+                         width="150" height="150" 
+                         class="rounded-circle border">
+                {% else %}
+                    <p>You have not set a profile picture yet. A default image is displayed.</p>
+                    <img src="{% static 'toolhub/images/default.png' %}" 
+                         alt="Default Profile Picture" 
+                         width="150" height="150" 
+                         class="rounded-circle border">
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Column: Profile Picture Form + Buttons -->
+        <div class="col-md-8">
+            <div class="d-flex flex-column">
+                <form method="post" enctype="multipart/form-data" class="border p-4 rounded mb-3">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.profile_picture.id_for_label }}" class="form-label">Choose a new profile picture:</label>
+                        {{ form.profile_picture }}
+                        {% if form.profile_picture.errors %}
+                            <div class="text-danger">
+                                {{ form.profile_picture.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </form>
+
+                <!-- Clear Profile Picture Button -->
+                {% if user.profile_picture %}
+                <form method="post" action="{% url 'clear_profile_picture' %}" class="mb-3">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Clear Profile Picture</button>
+                </form>
+                {% endif %}
+
+                <a href="{% url 'profile' %}" class="btn btn-secondary" style="width: 100px;">Back</a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

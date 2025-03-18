@@ -12,4 +12,7 @@ class ProfilePictureForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'email', 'profile_picture', 'role']
+        fields = ['first_name', 'last_name', 'email', 'profile_picture', 'phone_number', 'role']
+        widgets = {
+            'profile_picture': forms.FileInput(attrs={'class': 'form-control-file'}),
+        }

@@ -21,6 +21,7 @@ def logoutView(request):
 def profileView(request):
     return render(request, "toolhub/profile.html", {"user": request.user})
 
+@login_required
 def uploadPicture(request):
     if request.method == 'POST':
         form = ProfilePictureForm(request.POST, request.FILES, instance=request.user)
