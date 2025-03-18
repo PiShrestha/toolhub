@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.utils.module_loading import import_string
+import uuid
 
 def upload_to_profile(instance, filename):
     extension = filename.split('.')[-1]
@@ -17,13 +18,9 @@ class CustomUser(AbstractUser):
 
     phone_number = models.CharField(max_length=15, blank=True, null=True)
 
-    @staticmethod
-    def default_profile_picture():
-        return "toolhub/images/default.png"
     
     profile_picture = models.ImageField(
         upload_to=upload_to_profile,
-        default=default_profile_picture,
         storage=import_string(settings.DEFAULT_FILE_STORAGE)(),
         null=True, 
         blank=True
@@ -34,11 +31,9 @@ class CustomUser(AbstractUser):
         if self.pk:
             try:
                 old_instance = CustomUser.objects.get(pk=self.pk)
-                default_picture = CustomUser.default_profile_picture()
                 # If an old profile picture exists, is not the default, and has changed,
                 # delete the old file from storage.
-                if (old_instance.profile_picture and 
-                    old_instance.profile_picture.name != default_picture and 
+                if (old_instance.profile_picture and  
                     old_instance.profile_picture != self.profile_picture):
                     if old_instance.profile_picture.name:
                         if default_storage.exists(old_instance.profile_picture.name):
@@ -51,8 +46,23 @@ class CustomUser(AbstractUser):
     def profile_picture_url(self):
         if self.profile_picture:
             return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/{self.profile_picture.name}"
-        return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/profile_pictures/default.png"
+        return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/toolhub/images/default.png"
+
+def upload_to_item(instance, filename):
+    extension = filename.split('.')[-1]
+    return f"items/{instance.uuid}.{extension}"
 
 class Item(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='images/', blank=True, null=True)
+    
+    image = models.ImageField(upload_to=upload_to_item, 
+                              storage=import_string(settings.DEFAULT_FILE_STORAGE)(),
+                              blank=True, 
+                              null=True)
+
+    @property
+    def image_url(self):
+        if self.image:
+            return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/{self.image.name}"
+        return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/toolhub/images/logo.png"

@@ -3,14 +3,19 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import CustomUser
-from .forms import ProfilePictureForm, UserProfileForm
+from .forms import ProfilePictureForm, UserProfileForm, ItemForm
+from django.core.exceptions import PermissionDenied
+from .models import Item
 
 # Create your views here.
 @login_required
 def home(request):
+    items = Item.objects.all() 
+    print("DEBUG: Found items ->", items)
+
     if request.user.role == 'librarian':
-        return render(request, "toolhub/librarian_home.html", {"user": request.user})
-    return render(request, "toolhub/patron_home.html", {"user": request.user})
+        return render(request, "toolhub/librarian_home.html", {"user": request.user, "items": items})
+    return render(request, "toolhub/patron_home.html", {"user": request.user, "items":items})
 
 @login_required
 def logoutView(request):
@@ -58,3 +63,19 @@ def update_profile(request):
     else:
         form = UserProfileForm(instance=request.user)
     return render(request, "toolhub/profile_update.html", {"form": form})
+
+@login_required
+def add_item(request):
+    # Ensure only librarians can add items.
+    if request.user.role != "librarian":
+        raise PermissionDenied("Only librarians can add items.")
+
+    if request.method == "POST":
+        form = ItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+    else:
+        form = ItemForm()
+    
+    return render(request, "toolhub/add_item.html", {"form": form})

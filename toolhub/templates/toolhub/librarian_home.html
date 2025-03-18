@@ -3,9 +3,35 @@
 {% block title %}Librarian Dashboard{% endblock %}
 
 {% block content %}
-<div>
-    <h2>Welcome, Librarian {{ user.first_name }}</h2>
-    <p>You have administrator privileges.</p>
+<div class="container mt-4">
+    <h2 class="mb-3">Welcome, Librarian {{ user.first_name }}</h2>
+
+    <p class="mb-1"><strong>You can manage books and users.</strong></p>
+    <p class="mb-1"><strong>Account Email:</strong> {{ user.email }}</p>
+    <p class="mb-3"><strong>Username:</strong> {{ user.username }}</p>
+
+    <h3 class="mt-4">Available Items</h3>
+    {% if items %}
+        <div class="row">
+            {% for item in items %}
+                <div class="col-md-3 mb-4">
+                    <div class="card">
+                        {% if item.image %}
+                            <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.name }}">
+                        {% else %}
+                            <img src="https://{{ settings.AWS_STORAGE_BUCKET_NAME }}.s3.amazonaws.com/media/items/default.png" class="card-img-top" alt="Default Image">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.name }}</h5>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No items available at the moment.</p>
+    {% endif %}
+
+    <a href="{% url 'add_item' %}" class="btn btn-primary mt-3">Add New Item</a>
 </div>
-    
 {% endblock %}

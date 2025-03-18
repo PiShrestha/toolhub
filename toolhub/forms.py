@@ -1,5 +1,5 @@
 from django import forms
-from .models import CustomUser
+from .models import CustomUser, Item
 
 class ProfilePictureForm(forms.ModelForm):
     class Meta:
@@ -16,3 +16,9 @@ class UserProfileForm(forms.ModelForm):
         widgets = {
             'profile_picture': forms.FileInput(attrs={'class': 'form-control-file'}),
         }
+
+class ItemForm(forms.ModelForm):
+    class Meta:
+        model = Item
+        fields = ["name", "image"]
+        widgets = {"image": forms.FileInput(attrs={"class": "form-control-file"})}
