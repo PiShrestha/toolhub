@@ -31,10 +31,11 @@ class CustomUser(AbstractUser):
         if self.pk:
             try:
                 old_instance = CustomUser.objects.get(pk=self.pk)
-                if old_instance.profile_picture and old_instance.profile_picture != self.profile_picture:
-                    old_instance.profile_picture.delete(save=False) # Delete old image from S3
-            except CustomUser.DoesNotExist: 
-                pass # First-time save, no old image exists
+                if old_instance.profile_picture and old_instance.profile_picture.name != self.profile_picture.name:
+                    if hasattr(old_instance.profile_picture, 'delete'):
+                        old_instance.profile_picture.delete(save=False)
+            except CustomUser.DoesNotExist:
+                pass  # First-time save, no old image exists
         super().save(*args, **kwargs)
     
     @property
