@@ -74,6 +74,9 @@ class Item(models.Model):
             return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/{self.image.name}"
         return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/toolhub/images/logo.png"
 
+    def __str__(self):
+        return self.name
+
 
 class Collection(models.Model):
     PUBLIC = "public"
@@ -93,26 +96,3 @@ class Collection(models.Model):
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="collections"
     )
-    allowed_users = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-        related_name="permitted_collections",
-        blank=True,
-        help_text="Only applies to private collections. Librarians always have access.",
-    )
-
-    def clean(self):
-        from django.core.exceptions import ValidationError
-
-        if self.visibility == self.PRIVATE:
-            for item in self.items.all():
-                private_collections = item.collections.filter(visibility=self.PRIVATE)
-                if private_collections.exists() and self not in private_collections:
-                    raise ValidationError(
-                        f"Item '{item.name}' is already in another private collection."
-                    )
-        else:
-            for item in self.items.all():
-                if item.collections.filter(visibility=self.PRIVATE).exists():
-                    raise ValidationError(
-                        f"Item '{item.name}' is in a private collection and cannot be added to a public one."
-                    )
