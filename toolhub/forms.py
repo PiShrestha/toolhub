@@ -38,4 +38,4 @@ class CollectionForm(forms.ModelForm):
     class Meta:
 
         model = Collection
-        fields = ["title", "description", "description", "items", "visibility"]
+        fields = ["title", "description", "description", "image", "items", "visibility"]

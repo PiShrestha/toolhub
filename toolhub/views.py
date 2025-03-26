@@ -5,23 +5,27 @@ from django.contrib import messages
 from .models import CustomUser
 from .forms import ProfilePictureForm, UserProfileForm, ItemForm, CollectionForm
 from django.core.exceptions import PermissionDenied
-from .models import Item
+from .models import Item, Collection
 
 
 # Create your views here.
 @login_required
 def home(request):
     items = Item.objects.all()
+    collections = Collection.objects.all()
+
     print("DEBUG: Found items ->", items)
 
     if request.user.role == "librarian":
         return render(
             request,
             "toolhub/librarian_home.html",
-            {"user": request.user, "items": items},
+            {"user": request.user, "items": items, "collections": collections},
         )
     return render(
-        request, "toolhub/patron_home.html", {"user": request.user, "items": items}
+        request,
+        "toolhub/patron_home.html",
+        {"user": request.user, "items": items, "collections": collections},
     )
 
 
@@ -96,13 +100,21 @@ def add_item(request):
 
 @login_required
 def add_collection(request):
-
     if request.method == "POST":
         form = CollectionForm(request.POST, request.FILES)
+
+        if request.user.role != "librarian":
+            form.fields["visibility"].choices = [("public", "Public")]
+
         if form.is_valid():
-            form.save()
+            collection = form.save(commit=False)
+            collection.creator = request.user
+            form.save_m2m()
+            collection.save()
             return redirect("home")
     else:
         form = CollectionForm()
+        if request.user.role != "librarian":
+            form.fields["visibility"].choices = [("public", "Public")]
 
     return render(request, "toolhub/add_collection.html", {"form": form})

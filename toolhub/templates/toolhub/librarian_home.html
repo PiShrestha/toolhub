@@ -1,4 +1,5 @@
 {% extends 'toolhub/base.html' %}
+{% load static %}
 
 {% block title %}Librarian Dashboard{% endblock %}
 
@@ -31,6 +32,29 @@
     </div>
     {% else %}
     <p>No items available at the moment.</p>
+    {% endif %}
+
+    <h3 class="mt-4">Collection</h3>
+    {% if collections %}
+    <div class="row">
+        {% for collection in collections %}
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                {% if collection.image %}
+                <img src="{{ collection.image_url }}" class="card-img-top" alt="{{ collection.title }}">
+                {% else %}
+                <img src="https://{{ settings.AWS_STORAGE_BUCKET_NAME }}.s3.amazonaws.com/media/items/default.png"
+                    class="card-img-top" alt="Default Image">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ collection.title }}</h5>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No collections available at the moment.</p>
     {% endif %}
 
     <a href="{% url 'add_item' %}" class="btn btn-primary mt-3">Add New Item</a>

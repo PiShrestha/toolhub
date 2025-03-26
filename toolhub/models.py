@@ -90,9 +90,22 @@ class Collection(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     items = models.ManyToManyField("Item", related_name="collections", blank=True)
+
+    image = models.ImageField(
+        upload_to=upload_to_item,
+        storage=import_string(settings.DEFAULT_FILE_STORAGE)(),
+        blank=True,
+        null=True,
+    )
     visibility = models.CharField(
         max_length=7, choices=VISIBILITY_CHOICES, default=PUBLIC
     )
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="collections"
     )
+
+    @property
+    def image_url(self):
+        if self.image:
+            return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/{self.image.name}"
+        return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/toolhub/images/logo.png"
