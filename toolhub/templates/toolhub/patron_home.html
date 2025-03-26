@@ -40,17 +40,19 @@
     <div class="row">
         {% for collection in collections %}
         <div class="col-md-3 mb-4">
-            <div class="card">
-                {% if collection.image %}
-                <img src="{{ collection.image_url }}" class="card-img-top" alt="{{ collection.title }}">
-                {% else %}
-                <img src="https://{{ settings.AWS_STORAGE_BUCKET_NAME }}.s3.amazonaws.com/media/items/default.png"
-                    class="card-img-top" alt="Default Image">
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ collection.title }}</h5>
+            <a href="{% url 'view_collection' collection.uuid %}" class="text-decoration-none text-dark">
+                <div class="card">
+                    {% if collection.image %}
+                    <img src="{{ collection.image_url }}" class="card-img-top" alt="{{ collection.title }}">
+                    {% else %}
+                    <img src="https://{{ settings.AWS_STORAGE_BUCKET_NAME }}.s3.amazonaws.com/media/items/default.png"
+                        class="card-img-top" alt="Default Image">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ collection.title }}</h5>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         {% endfor %}
     </div>

@@ -20,6 +20,12 @@ urlpatterns = [
     ),
     path("items/new/", views.add_item, name="add_item"),
     path("collections/new/", views.add_collection, name="add_collection"),
+    path(
+        "collections/<uuid:collection_uuid>/",
+        views.view_collection,
+        name="view_collection",
+    ),
+    path("access-denied/", views.access_denied, name="access_denied"),
 ]
 
 # Needed in development (DEBUG=True) because Django does not serve media files automatically.

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -109,8 +109,8 @@ def add_collection(request):
         if form.is_valid():
             collection = form.save(commit=False)
             collection.creator = request.user
-            form.save_m2m()
             collection.save()
+            form.save_m2m()
             return redirect("home")
     else:
         form = CollectionForm()
@@ -118,3 +118,28 @@ def add_collection(request):
             form.fields["visibility"].choices = [("public", "Public")]
 
     return render(request, "toolhub/add_collection.html", {"form": form})
+
+
+@login_required
+def view_collection(request, collection_uuid):
+    collection = get_object_or_404(Collection, uuid=collection_uuid)
+
+    # Access control logic
+    if collection.visibility == "private":
+        is_librarian = request.user.role == "librarian"
+
+        if not is_librarian:
+            return redirect("access_denied")
+
+    return render(
+        request,
+        "toolhub/view_collection.html",
+        {
+            "collection": collection,
+            "items": collection.items.all(),
+        },
+    )
+
+
+def access_denied(request):
+    return render(request, "toolhub/access_denied.html")

@@ -58,7 +58,7 @@ def upload_to_item(instance, filename):
 
 
 class Item(models.Model):
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255)
 
     image = models.ImageField(
@@ -79,6 +79,9 @@ class Item(models.Model):
 
 
 class Collection(models.Model):
+
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
     PUBLIC = "public"
     PRIVATE = "private"
 
