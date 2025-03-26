@@ -3,42 +3,53 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import CustomUser
-from .forms import ProfilePictureForm, UserProfileForm, ItemForm
+from .forms import ProfilePictureForm, UserProfileForm, ItemForm, CollectionForm
 from django.core.exceptions import PermissionDenied
 from .models import Item
+
 
 # Create your views here.
 @login_required
 def home(request):
-    items = Item.objects.all() 
+    items = Item.objects.all()
     print("DEBUG: Found items ->", items)
 
-    if request.user.role == 'librarian':
-        return render(request, "toolhub/librarian_home.html", {"user": request.user, "items": items})
-    return render(request, "toolhub/patron_home.html", {"user": request.user, "items":items})
+    if request.user.role == "librarian":
+        return render(
+            request,
+            "toolhub/librarian_home.html",
+            {"user": request.user, "items": items},
+        )
+    return render(
+        request, "toolhub/patron_home.html", {"user": request.user, "items": items}
+    )
+
 
 @login_required
 def logoutView(request):
     logout(request)
     return redirect("/")
 
+
 @login_required
 def profileView(request):
     return render(request, "toolhub/profile.html", {"user": request.user})
 
+
 @login_required
 def uploadPicture(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ProfilePictureForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, "Profile picture updated successfully!")
             return redirect("profile")
-        
+
     else:
         form = ProfilePictureForm(instance=request.user)
-    
+
     return render(request, "toolhub/upload_picture.html", {"form": form})
+
 
 @login_required
 def clear_profile_picture(request):
@@ -48,7 +59,8 @@ def clear_profile_picture(request):
         request.user.profile_picture = None
         request.user.save()
         messages.success(request, "Your profile picture has been cleared.")
-    return redirect('profile')
+    return redirect("profile")
+
 
 @login_required
 def update_profile(request):
@@ -57,12 +69,13 @@ def update_profile(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Your profile information has been updated!")
-            return redirect('profile')
+            return redirect("profile")
         else:
             messages.error(request, "Please correct the errors below.")
     else:
         form = UserProfileForm(instance=request.user)
     return render(request, "toolhub/profile_update.html", {"form": form})
+
 
 @login_required
 def add_item(request):
@@ -77,5 +90,19 @@ def add_item(request):
             return redirect("home")
     else:
         form = ItemForm()
-    
+
     return render(request, "toolhub/add_item.html", {"form": form})
+
+
+@login_required
+def add_collection(request):
+
+    if request.method == "POST":
+        form = CollectionForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+    else:
+        form = CollectionForm()
+
+    return render(request, "toolhub/add_collection.html", {"form": form})

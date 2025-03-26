@@ -5,27 +5,28 @@ from django.core.files.storage import default_storage
 from django.utils.module_loading import import_string
 import uuid
 
+
 def upload_to_profile(instance, filename):
-    extension = filename.split('.')[-1]
+    extension = filename.split(".")[-1]
     return f"profile_pictures/{instance.email.replace('@', '_').replace(".", "_")}.{extension}"
+
 
 class CustomUser(AbstractUser):
     ROLE_CHOICES = [
-        ('patron', 'Patron'),
-        ('librarian', 'Librarian'),
+        ("patron", "Patron"),
+        ("librarian", "Librarian"),
     ]
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='patron')
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="patron")
 
     phone_number = models.CharField(max_length=15, blank=True, null=True)
 
-    
     profile_picture = models.ImageField(
         upload_to=upload_to_profile,
         storage=import_string(settings.DEFAULT_FILE_STORAGE)(),
-        null=True, 
-        blank=True
+        null=True,
+        blank=True,
     )
-    
+
     # Deletes old profile picture before saving a new one.
     def save(self, *args, **kwargs):
         if self.pk:
@@ -33,36 +34,85 @@ class CustomUser(AbstractUser):
                 old_instance = CustomUser.objects.get(pk=self.pk)
                 # If an old profile picture exists, is not the default, and has changed,
                 # delete the old file from storage.
-                if (old_instance.profile_picture and  
-                    old_instance.profile_picture != self.profile_picture):
+                if (
+                    old_instance.profile_picture
+                    and old_instance.profile_picture != self.profile_picture
+                ):
                     if old_instance.profile_picture.name:
                         if default_storage.exists(old_instance.profile_picture.name):
                             default_storage.delete(old_instance.profile_picture.name)
             except CustomUser.DoesNotExist:
                 pass  # First-time save, no old image exists
         super().save(*args, **kwargs)
-    
+
     @property
     def profile_picture_url(self):
         if self.profile_picture:
             return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/{self.profile_picture.name}"
         return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/toolhub/images/default.png"
 
+
 def upload_to_item(instance, filename):
-    extension = filename.split('.')[-1]
+    extension = filename.split(".")[-1]
     return f"items/{instance.uuid}.{extension}"
+
 
 class Item(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    
-    image = models.ImageField(upload_to=upload_to_item, 
-                              storage=import_string(settings.DEFAULT_FILE_STORAGE)(),
-                              blank=True, 
-                              null=True)
+
+    image = models.ImageField(
+        upload_to=upload_to_item,
+        storage=import_string(settings.DEFAULT_FILE_STORAGE)(),
+        blank=True,
+        null=True,
+    )
 
     @property
     def image_url(self):
         if self.image:
             return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/{self.image.name}"
         return f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/toolhub/images/logo.png"
+
+
+class Collection(models.Model):
+    PUBLIC = "public"
+    PRIVATE = "private"
+
+    VISIBILITY_CHOICES = [
+        (PUBLIC, "Public"),
+        (PRIVATE, "Private"),
+    ]
+
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    items = models.ManyToManyField("Item", related_name="collections", blank=True)
+    visibility = models.CharField(
+        max_length=7, choices=VISIBILITY_CHOICES, default=PUBLIC
+    )
+    creator = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="collections"
+    )
+    allowed_users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name="permitted_collections",
+        blank=True,
+        help_text="Only applies to private collections. Librarians always have access.",
+    )
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        if self.visibility == self.PRIVATE:
+            for item in self.items.all():
+                private_collections = item.collections.filter(visibility=self.PRIVATE)
+                if private_collections.exists() and self not in private_collections:
+                    raise ValidationError(
+                        f"Item '{item.name}' is already in another private collection."
+                    )
+        else:
+            for item in self.items.all():
+                if item.collections.filter(visibility=self.PRIVATE).exists():
+                    raise ValidationError(
+                        f"Item '{item.name}' is in a private collection and cannot be added to a public one."
+                    )
