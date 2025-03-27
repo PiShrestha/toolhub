@@ -58,8 +58,32 @@ def upload_to_item(instance, filename):
 
 
 class Item(models.Model):
+    STATUS_CHOICES = [
+        ("available", "Available"),
+        ("currently_borrowed", "Currently Borrowed"),
+        ("being_repaired", "Being Repaired"),
+        ("lost", "Lost"),
+        ("archived", "Archived"),
+    ]
+
+    LOCATION_CHOICES = [
+        ("main_warehouse", "Main Warehouse"),
+        ("aux_warehouse", "Aux Warehouse"),
+        ("patrons_location", "Patrions Location"),
+        ("remote_storage", "Remote Storage"),
+    ]
+
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    identifier = models.CharField(max_length=100, unique=True)
+
+    status = models.CharField(
+        max_length=50, choices=STATUS_CHOICES, default="available"
+    )
+    location = models.CharField(
+        max_length=50, choices=LOCATION_CHOICES, default="main_warehouse"
+    )
 
     image = models.ImageField(
         upload_to=upload_to_item,

@@ -32,8 +32,19 @@ class UserProfileForm(forms.ModelForm):
 class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
-        fields = ["name", "image"]
-        widgets = {}
+        fields = [
+            "name",
+            "identifier",
+            "status",
+            "location",
+            "description",
+            "image",
+        ]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+            "status": forms.Select(attrs={"class": "form-select"}),
+            "location": forms.Select(attrs={"class": "form-select"}),
+        }
 
 
 User = get_user_model()
