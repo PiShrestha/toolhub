@@ -31,11 +31,13 @@ class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
         fields = ["name", "image"]
-        widgets = {"image": forms.FileInput(attrs={"class": "form-control-file"})}
+        widgets = {}
 
 
 class CollectionForm(forms.ModelForm):
     class Meta:
-
         model = Collection
-        fields = ["title", "description", "description", "image", "items", "visibility"]
+        fields = ["title", "description", "visibility", "items", "image"]
+        widgets = {
+            "items": forms.CheckboxSelectMultiple(),
+        }

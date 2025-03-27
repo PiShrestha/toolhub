@@ -26,6 +26,11 @@ urlpatterns = [
         name="view_collection",
     ),
     path("access-denied/", views.access_denied, name="access_denied"),
+    path(
+        "collections/<uuid:collection_uuid>/edit/",
+        views.edit_collection,
+        name="edit_collection",
+    ),
 ]
 
 # Needed in development (DEBUG=True) because Django does not serve media files automatically.

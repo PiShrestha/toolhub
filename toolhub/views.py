@@ -83,7 +83,6 @@ def update_profile(request):
 
 @login_required
 def add_item(request):
-    # Ensure only librarians can add items.
     if request.user.role != "librarian":
         raise PermissionDenied("Only librarians can add items.")
 
@@ -124,7 +123,6 @@ def add_collection(request):
 def view_collection(request, collection_uuid):
     collection = get_object_or_404(Collection, uuid=collection_uuid)
 
-    # Access control logic
     if collection.visibility == "private":
         is_librarian = request.user.role == "librarian"
 
@@ -143,3 +141,8 @@ def view_collection(request, collection_uuid):
 
 def access_denied(request):
     return render(request, "toolhub/access_denied.html")
+
+
+@login_required
+def edit_collection(request, collection_uuid):
+    pass
