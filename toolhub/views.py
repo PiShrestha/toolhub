@@ -145,4 +145,28 @@ def access_denied(request):
 
 @login_required
 def edit_collection(request, collection_uuid):
-    pass
+    collection = get_object_or_404(Collection, uuid=collection_uuid)
+
+    if request.user != collection.creator:
+        return redirect("access_denied")
+
+    if request.method == "POST":
+        form = CollectionForm(request.POST, request.FILES, instance=collection)
+
+        if request.user.role != "librarian":
+            form.fields["visibility"].choices = [("public", "Public")]
+
+        if form.is_valid():
+            form.save()
+            return redirect("view_collection", collection_uuid=collection.uuid)
+    else:
+        form = CollectionForm(instance=collection)
+
+        if request.user.role != "librarian":
+            form.fields["visibility"].choices = [("public", "Public")]
+
+    return render(
+        request,
+        "toolhub/edit_collection.html",
+        {"form": form, "collection": collection},
+    )
