@@ -171,3 +171,17 @@ def edit_collection(request, collection_uuid):
         "toolhub/edit_collection.html",
         {"form": form, "collection": collection},
     )
+
+
+@login_required
+def delete_collection(request, collection_uuid):
+    collection = get_object_or_404(Collection, uuid=collection_uuid)
+
+    if request.user != collection.creator and request.user.role != "librarian":
+        return redirect("access_denied")
+
+    if request.method == "POST":
+        collection.delete()
+        return redirect("home")
+
+    return redirect("edit_collection", collection_uuid=collection.uuid)

@@ -31,6 +31,11 @@ urlpatterns = [
         views.edit_collection,
         name="edit_collection",
     ),
+    path(
+        "collections/<uuid:collection_uuid>/delete/",
+        views.delete_collection,
+        name="delete_collection",
+    ),
 ]
 
 # Needed in development (DEBUG=True) because Django does not serve media files automatically.
