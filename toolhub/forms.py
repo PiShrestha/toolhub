@@ -64,20 +64,32 @@ class CollectionForm(forms.ModelForm):
     def clean_items(self):
         items = self.cleaned_data.get("items")
         visibility = self.cleaned_data.get("visibility")
-        instance = self.instance
+        instance = self.instance  # may be unsaved on create
 
         for item in items:
             private_collections = item.collections.filter(visibility=Collection.PRIVATE)
+            public_collections = item.collections.filter(visibility=Collection.PUBLIC)
 
             if visibility == Collection.PRIVATE:
-                if private_collections.exists() and instance not in private_collections:
-                    raise ValidationError(
-                        f"Item '{item.name}' is already in another private collection, and cannot be in any other collections."
-                    )
-            else:
+                if private_collections.exists():
+                    if (
+                        not instance.pk
+                        or private_collections.exclude(pk=instance.pk).exists()
+                    ):
+                        raise ValidationError(
+                            f"Item '{item.name}' is already in another private collection and cannot be reused."
+                        )
+
+            if visibility == Collection.PUBLIC:
                 if private_collections.exists():
                     raise ValidationError(
-                        f"Item '{item.name}' is already in another private collection, and cannot be in any other collections."
+                        f"Item '{item.name}' is already in a private collection and cannot be added to a public one."
+                    )
+
+            if visibility == Collection.PRIVATE:
+                if public_collections.exists():
+                    raise ValidationError(
+                        f"Item '{item.name}' is already in a public collection and cannot be added to a private one."
                     )
 
         return items
