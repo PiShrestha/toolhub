@@ -107,6 +107,13 @@ class Collection(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="collections"
     )
 
+    allowed_users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name="shared_collections",
+        blank=True,
+        help_text="Users who can access this private collection (librarians can always access).",
+    )
+
     @property
     def image_url(self):
         if self.image:

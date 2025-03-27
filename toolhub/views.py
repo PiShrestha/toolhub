@@ -125,8 +125,9 @@ def view_collection(request, collection_uuid):
 
     if collection.visibility == "private":
         is_librarian = request.user.role == "librarian"
+        is_allowed_user = collection.allowed_users.filter(id=request.user.id).exists()
 
-        if not is_librarian:
+        if not (is_librarian or is_allowed_user or request.user == collection.creator):
             return redirect("access_denied")
 
     return render(
