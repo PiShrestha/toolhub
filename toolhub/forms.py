@@ -104,3 +104,6 @@ class CollectionForm(forms.ModelForm):
                     )
 
         return items
+
+class PromoteUserForm(forms.Form):
+    email = forms.EmailField(label="User Email", max_length=254)

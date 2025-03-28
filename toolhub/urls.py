@@ -36,6 +36,7 @@ urlpatterns = [
         views.delete_collection,
         name="delete_collection",
     ),
+    path("promote/", views.promote_user_view, name="promote_user"),
 ]
 
 # Needed in development (DEBUG=True) because Django does not serve media files automatically.

@@ -3,7 +3,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import CustomUser
-from .forms import ProfilePictureForm, UserProfileForm, ItemForm, CollectionForm
+from .forms import ProfilePictureForm, UserProfileForm, ItemForm, CollectionForm, PromoteUserForm
 from django.core.exceptions import PermissionDenied
 from .models import Item, Collection
 
@@ -187,3 +187,29 @@ def delete_collection(request, collection_uuid):
         return redirect("home")
 
     return redirect("edit_collection", collection_uuid=collection.uuid)
+
+@login_required
+def promote_user_view(request):
+    if request.user.role != 'librarian':
+        messages.error(request, "You are not authorized to promote users.")
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = PromoteUserForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = CustomUser.objects.get(email=email)
+                if user.role == 'librarian':
+                    messages.info(request, f"{user.email} is already a librarian.")
+                else:
+                    user.role = 'librarian'
+                    user.save()
+                    messages.success(request, f"{user.email} has been promoted to librarian!")
+            except CustomUser.DoesNotExist:
+                messages.error(request, "User with that email does not exist.")
+            return redirect('promote_user')  # reload page
+    else:
+        form = PromoteUserForm()
+
+    return render(request, 'toolhub/promote_user.html', {'form': form})

@@ -48,15 +48,20 @@
                         <img src="{% static 'toolhub/images/logo.png' %}" alt="logo" width="35" height="35" class="me-2">
                         <span>Toolhub</span>
                     </a>
-                    <!-- My Profile button -->
-                    <div class = "dropdown">
-                        <a class="dropdown toggle" id = "dropDown" data-bs-auto-close="outside" aria-expanded="true">
-                            <img src="{% static 'toolhub/images/profile.png' %}" alt="Profile" width="35" height="35" class="rounded-circle">
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="dropDown">
-                            <li><a class="dropdown-item text-center" href="{% url 'profile' %}">Account</a></li>
-                            <li><a class="dropdown-item text-center" href="{% url 'logout' %}">Sign Out</a></li>
-                        </ul>
+                    <div class="d-flex align-items-center gap-3">
+                        {% if user.is_authenticated and user.role == 'librarian' %}
+                            <a class="nav-link" href="{% url 'promote_user' %}">Promote User</a>
+                        {% endif %}
+                        <!-- My Profile button -->
+                        <div class = "dropdown">
+                            <a class="dropdown toggle" id = "dropDown" data-bs-auto-close="outside" aria-expanded="true">
+                                <img src="{% static 'toolhub/images/profile.png' %}" alt="Profile" width="35" height="35" class="rounded-circle">
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="dropDown">
+                                <li><a class="dropdown-item text-center" href="{% url 'profile' %}">Account</a></li>
+                                <li><a class="dropdown-item text-center" href="{% url 'logout' %}">Sign Out</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </nav>

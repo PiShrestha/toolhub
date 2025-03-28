@@ -1,0 +1,22 @@
+{% extends 'toolhub/base.html' %}
+{% block title %}Promote User{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Promote a Patron to Librarian</h2>
+    <p class="mb-3">Enter the email address of the patron you want to promote.</p>
+
+    <form method="post" class="border p-4 rounded shadow-sm bg-light">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            {% for error in form.email.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">Promote</button>
+        <a href="{% url 'home' %}" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}
