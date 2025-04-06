@@ -133,6 +133,7 @@ SMALL_GIF = (
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'test_media'))
 class ItemTests(TestCase):
     def setUp(self):
+        Item._meta.get_field('image').storage = FileSystemStorage()
         self.client = Client()
         self.librarian = CustomUser.objects.create_user(
             username="librarian", email="librarian@test.com", password="pass", role="librarian"
@@ -186,7 +187,7 @@ class ItemTests(TestCase):
         """
         self.client.login(username="patron", password="pass")
         response = self.client.get(reverse("add_item"))
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 403)
 
         self.client.login(username="librarian", password="pass")
         response = self.client.get(reverse("add_item"))
@@ -207,6 +208,7 @@ class ItemTests(TestCase):
 @override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'test_media'))
 class CollectionTests(TestCase):
     def setUp(self):
+        Collection._meta.get_field('image').storage = FileSystemStorage()
         self.client = Client()
         self.librarian = CustomUser.objects.create_user(
             username="librarian", email="librarian@test.com", password="pass", role="librarian"
