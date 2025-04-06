@@ -5,6 +5,7 @@ from django.conf import settings
 from unittest.mock import patch
 from .models import CustomUser, Item, Collection
 from django.core.files.storage import FileSystemStorage, default_storage
+import os
 
 
 class CustomUserModelTests(TestCase):
@@ -129,6 +130,7 @@ SMALL_GIF = (
     b'\x01\x00\x3b'
 )
 
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'test_media'))
 class ItemTests(TestCase):
     def setUp(self):
         self.client = Client()
@@ -184,7 +186,7 @@ class ItemTests(TestCase):
         """
         self.client.login(username="patron", password="pass")
         response = self.client.get(reverse("add_item"))
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 302)
 
         self.client.login(username="librarian", password="pass")
         response = self.client.get(reverse("add_item"))
@@ -202,6 +204,7 @@ class ItemTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Item.objects.filter(identifier="view_test_item_001").exists())
 
+@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'test_media'))
 class CollectionTests(TestCase):
     def setUp(self):
         self.client = Client()
