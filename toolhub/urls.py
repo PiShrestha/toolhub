@@ -37,6 +37,12 @@ urlpatterns = [
         name="delete_collection",
     ),
     path("promote/", views.promote_user_view, name="promote_user"),
+    path("borrow/<uuid:item_uuid>/",
+         views.borrow_item,
+         name="borrow_item"),
+    path("return/<uuid:item_uuid>/",
+         views.return_item,
+         name="return_item"),
 ]
 
 # Needed in development (DEBUG=True) because Django does not serve media files automatically.

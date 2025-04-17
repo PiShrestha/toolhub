@@ -26,8 +26,12 @@
                     <h5 class="card-title">{{ item.name }}</h5>
 
                     {% if item.status == "available" %}
-                    <a class="btn btn-sm btn-outline-primary">
+                    <a href="{% url 'borrow_item' item.uuid %}" class="btn btn-sm btn-outline-primary">
                         <i class="bi bi-pencil"></i>Borrow
+                    </a>
+                    {% elif request.user == item.borrower %}
+                    <a href="{% url 'return_item' item.uuid %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil"></i>Return
                     </a>
                     {% else %}
                     <p>{{ item.status }}</p>

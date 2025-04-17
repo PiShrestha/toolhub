@@ -213,3 +213,23 @@ def promote_user_view(request):
         form = PromoteUserForm()
 
     return render(request, 'toolhub/promote_user.html', {'form': form})
+
+@login_required
+def borrow_item(request, item_uuid):
+    item = get_object_or_404(Item, uuid=item_uuid)
+
+    if item.status == 'available':
+        item.status = 'currently_borrowed'
+        item.borrower = request.user
+        item.save()
+
+    return redirect('home')
+
+@login_required
+def return_item(request, item_uuid):
+    item = get_object_or_404(Item, uuid=item_uuid)
+
+    item.status = 'available'
+    item.save()
+
+    return redirect('home')
