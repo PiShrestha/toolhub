@@ -24,12 +24,15 @@ class UserProfileForm(forms.ModelForm):
             "email",
             "profile_picture",
             "phone_number",
-            "role",
         ]
         widgets = {
             "profile_picture": forms.FileInput(attrs={"class": "form-control-file"}),
         }
-
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+        if not user or user.role != "librarian":
+            self.fields.pop("role", None)
 
 class ItemForm(forms.ModelForm):
     class Meta:

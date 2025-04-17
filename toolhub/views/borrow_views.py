@@ -34,7 +34,7 @@ def request_borrow(request, item_id):
             borrow_request.user = request.user
             borrow_request.save()
             messages.success(request, f"Borrow request for '{item.name}' submitted successfully.")
-            return redirect("profile")
+            return redirect("home")
     else:
         form = BorrowRequestForm()
 
@@ -126,11 +126,11 @@ def cancel_borrow_request(request, request_id):
 
     if borrow_request.status != "pending":
         messages.warning(request, "Only pending borrow requests can be canceled.")
-        return redirect("borrow_requests")
+        return redirect("patron_borrow_requests")
 
     borrow_request.delete()
     messages.success(request, "Your borrow request has been canceled successfully.")
-    return redirect("borrow_requests")
+    return redirect("patron_borrow_requests")
 
 
 @login_required

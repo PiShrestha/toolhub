@@ -53,3 +53,8 @@ class CustomUserAdmin(UserAdmin):
     def make_inactive(self, request, queryset):
         queryset.update(is_active=False)
     make_inactive.short_description = "Mark selected users as inactive"
+
+    def get_readonly_fields(self, request, obj=None):
+        if not request.user.is_staff or (obj and obj.role == "patron"):
+            return self.readonly_fields + ("role",)
+        return self.readonly_fields

@@ -4,19 +4,48 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Promote a Patron to Librarian</h2>
-    <p class="mb-3">Enter the email address of the patron you want to promote.</p>
+    <p class="mb-3">Search for a patron by email or username to promote them to a librarian.</p>
 
-    <form method="post" class="border p-4 rounded shadow-sm bg-light">
-        {% csrf_token %}
-        <div class="mb-3">
-            {{ form.email.label_tag }}
-            {{ form.email }}
-            {% for error in form.email.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
+    <!-- Search Form -->
+    <form method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Search by email or username..." value="{{ query|default:'' }}">
+            <button class="btn btn-primary" type="submit">Search</button>
         </div>
-        <button type="submit" class="btn btn-primary">Promote</button>
-        <a href="{% url 'home' %}" class="btn btn-secondary ms-2">Cancel</a>
     </form>
+
+    <!-- Search Results -->
+    {% if users %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.first_name }} {{ user.last_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role|capfirst }}</td>
+                    <td>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <button type="submit" class="btn btn-success btn-sm">Promote to Librarian</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">No users found matching your search.</p>
+    {% endif %}
 </div>
 {% endblock %}

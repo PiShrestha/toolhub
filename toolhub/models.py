@@ -27,7 +27,6 @@ class CustomUser(AbstractUser):
     )
     join_date = models.DateTimeField(auto_now_add=True)  # Records when the user joined
 
-    # Deletes old profile picture before saving a new one.
     def save(self, *args, **kwargs):
         if self.pk:
             try:
@@ -42,7 +41,7 @@ class CustomUser(AbstractUser):
                         if default_storage.exists(old_instance.profile_picture.name):
                             default_storage.delete(old_instance.profile_picture.name)
             except CustomUser.DoesNotExist:
-                pass  # First-time save, no old image exists
+                pass
         super().save(*args, **kwargs)
 
     @property

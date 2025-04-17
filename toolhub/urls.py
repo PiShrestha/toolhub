@@ -10,6 +10,7 @@ from .views.profile_views import (
     clear_profile_picture,
     update_profile,
     logout_view,
+    search_users,
 )
 from .views.item_views import add_item, tools_page, edit_item
 from .views.collection_views import (
@@ -49,6 +50,7 @@ urlpatterns = [
     path("profile/clear-profile-picture/", clear_profile_picture, name="clear_profile_picture"),
     path("profile/update/", update_profile, name="update_profile"),
     path("logout/", logout_view, name="logout"),
+    path("promote-user/", search_users, name="search_users"),
 
     # Items
     path("items/new/", add_item, name="add_item"),
