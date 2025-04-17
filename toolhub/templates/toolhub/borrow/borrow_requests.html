@@ -1,0 +1,76 @@
+{% extends "toolhub/base.html" %}
+{% block title %}Borrow Requests{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">
+        {% if user.role == "librarian" %}
+            All Borrow Requests
+        {% else %}
+            My Borrow Requests
+        {% endif %}
+    </h1>
+    {% if borrow_requests %}
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Item</th>
+                    {% if user.role == "librarian" %}
+                        <th>Requested By</th>
+                    {% endif %}
+                    <th>Status</th>
+                    <th>Request Date</th>
+                    <th>Return Due Date</th>
+                    {% if user.role == "librarian" or user.role == "patron" %}
+                        <th>Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in borrow_requests %}
+                <tr>
+                    <td>{{ request.item.name }}</td>
+                    {% if user.role == "librarian" %}
+                        <td>{{ request.user.email }}</td>
+                    {% endif %}
+                    <td>{{ request.status|title }}</td>
+                    <td>{{ request.request_date|date:"M d, Y" }}</td>
+                    <td>
+                        {% if request.return_due_date %}
+                            {{ request.return_due_date|date:"M d, Y" }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.role == "librarian" and request.status == "pending" %}
+                            <form method="post" action="{% url 'approve_borrow' request.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button class="btn btn-success btn-sm" type="submit">Approve</button>
+                            </form>
+                            <form method="post" action="{% url 'deny_borrow' request.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button class="btn btn-danger btn-sm" type="submit">Deny</button>
+                            </form>
+                        {% elif user.role == "patron" and request.status == "pending" %}
+                            <form method="post" action="{% url 'cancel_borrow_request' request.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button class="btn btn-warning btn-sm" type="submit">Cancel</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">
+            {% if user.role == "librarian" %}
+                No borrow requests found.
+            {% else %}
+                You have no borrow requests at the moment.
+            {% endif %}
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

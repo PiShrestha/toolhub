@@ -1,5 +1,7 @@
+from datetime import timezone
 from django import forms
-from .models import CustomUser, Item, Collection
+from django.utils import timezone
+from .models import CustomUser, Item, Collection, ItemReview, BorrowRequest
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 
@@ -104,6 +106,41 @@ class CollectionForm(forms.ModelForm):
                     )
 
         return items
+
+
+class ItemReviewForm(forms.ModelForm):
+    class Meta:
+        model = ItemReview
+        fields = ["rating", "comment"]
+        widgets = {
+            "rating": forms.NumberInput(attrs={"min": 1, "max": 5, "class": "form-control"}),
+            "comment": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+        }
+
+
+class BorrowRequestForm(forms.ModelForm):
+    note = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 2, "class": "form-control"}),
+        label="Note (optional)"
+    )
+
+    class Meta:
+        model = BorrowRequest
+        fields = ["return_due_date", "note"]
+        widgets = {
+            "return_due_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        }
+
+    def clean_return_due_date(self):
+        """
+        Ensure the return due date is in the future.
+        """
+        return_due_date = self.cleaned_data.get("return_due_date")
+        if return_due_date and return_due_date <= timezone.now().date():
+            raise ValidationError("The return due date must be in the future.")
+        return return_due_date
+
 
 class PromoteUserForm(forms.Form):
     email = forms.EmailField(label="User Email", max_length=254)
