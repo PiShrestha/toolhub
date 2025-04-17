@@ -8,7 +8,7 @@ import uuid
 
 def upload_to_profile(instance, filename):
     extension = filename.split(".")[-1]
-    return f"profile_pictures/{instance.email.replace('@', '_').replace(".", "_")}.{extension}"
+    return f"profile_pictures/{instance.email.replace('@', '_').replace('.', '_')}.{extension}"
 
 
 class CustomUser(AbstractUser):
