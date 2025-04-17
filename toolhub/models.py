@@ -194,17 +194,20 @@ class BorrowRequest(models.Model):
         ("pending", "Pending"),
         ("approved", "Approved"),
         ("denied", "Denied"),
+        ("returned_on_time", "Returned On Time"),
+        ("returned_overdue", "Returned Late")
     ]
 
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="borrow_requests")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="borrow_requests")
     request_date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     return_due_date = models.DateField(null=True, blank=True)
     note = models.TextField(blank=True, null=True)
 
-    class Meta:
-        unique_together = ("item", "user")  # Allow only one active request per user-item pair
+    # Danny: Commented this out for the moment as it prevents a user from borrowing, returning, then borrowing the same item again
+    # class Meta:
+    #     unique_together = ("item", "user")  # Allow only one active request per user-item pair
 
     def __str__(self):
         return f"{self.user.email} - {self.item.name} ({self.status})"

@@ -29,6 +29,7 @@ from .views.borrow_views import (
     borrow_history,
     cancel_borrow_request,
     patron_borrow_requests,
+    return_item,
 )
 
 def access_denied(request):
@@ -79,6 +80,7 @@ urlpatterns = [
 
     # Access Denied
     path("access-denied/", access_denied, name="access_denied"),
+    path("return_item/<int:item_id>/", return_item, name="return_item"),
 ]
 
 # Serve media files in development

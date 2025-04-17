@@ -57,7 +57,8 @@ def approve_borrow(request, request_id):
         borrow_request.status = "approved"
         borrow_request.return_due_date = now().date() + timedelta(days=14)
         borrow_request.save()
-        item.status = "borrowed"
+        item.status = "currently_borrowed"
+        item.borrower = borrow_request.user
         item.save()
         messages.success(request, f"Approved request and marked '{item.name}' as borrowed.")
 
@@ -141,3 +142,37 @@ def patron_borrow_requests(request):
 
     borrow_requests = BorrowRequest.objects.filter(user=request.user).order_by("-request_date")
     return render(request, "toolhub/borrow/borrow_requests.html", {"borrow_requests": borrow_requests})
+
+@login_required
+def return_item(request, item_id):
+    item = get_object_or_404(Item, id=item_id)
+
+    if item.borrower_id != request.user.id:
+        raise PermissionDenied("You are not the borrower of this item.")
+
+    if item.status == "currently_borrowed":
+        # Mark the item as available and clear borrower
+        item.status = "available"
+        item.borrower = None
+        item.save()
+
+        # Find the most recent approved borrow request
+        borrow_request = (
+            BorrowRequest.objects
+            .filter(item=item, user=request.user, status="approved")
+            .order_by('-request_date')
+            .first()
+        )
+
+        if borrow_request:
+            today = now().date()
+            due_date = borrow_request.return_due_date
+
+            if due_date and today > due_date:
+                borrow_request.status = "returned_overdue"
+            else:
+                borrow_request.status = "returned_on_time"
+
+            borrow_request.save()
+
+    return redirect('home')

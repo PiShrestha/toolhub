@@ -106,6 +106,10 @@
                     {% else %}
                         <a href="{% url 'account_login' %}" class="btn btn-outline-primary">Sign in to Request</a>
                     {% endif %}
+                {% else %}
+                    {% if item.borrower.pk == request.user.pk %}
+                        <a href="{% url 'return_item' item.id %}" class="btn btn-danger">Return</a>
+                    {% endif %}
                 {% endif %}
                 {% endif %}
             </div>
