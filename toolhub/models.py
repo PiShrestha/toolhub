@@ -69,7 +69,7 @@ class Item(models.Model):
     LOCATION_CHOICES = [
         ("main_warehouse", "Main Warehouse"),
         ("aux_warehouse", "Aux Warehouse"),
-        ("patrons_location", "Patrions Location"),
+        ("patrons_location", "Patrons Location"),
         ("remote_storage", "Remote Storage"),
     ]
 
@@ -81,6 +81,11 @@ class Item(models.Model):
     status = models.CharField(
         max_length=50, choices=STATUS_CHOICES, default="available"
     )
+
+    borrower = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="items", blank=True, null=True
+    )
+
     location = models.CharField(
         max_length=50, choices=LOCATION_CHOICES, default="main_warehouse"
     )

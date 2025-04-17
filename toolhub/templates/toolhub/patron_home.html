@@ -7,7 +7,7 @@
 <div class="container mt-4">
     <h2 class="mb-3">Welcome, Patron {{ user.first_name }}</h2>
 
-    <p class="mb-1"><strong>You can browse and borrow books.</strong></p>
+    <p class="mb-1"><strong>You can browse and borrow tools.</strong></p>
     <p class="mb-1"><strong>Account Email:</strong> {{ user.email }}</p>
     <p class="mb-3"><strong>Username:</strong> {{ user.username }}</p>
 
@@ -24,6 +24,14 @@
                 {% endif %}
                 <div class="card-body">
                     <h5 class="card-title">{{ item.name }}</h5>
+
+                    {% if item.status == "available" %}
+                    <a class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil"></i>Borrow
+                    </a>
+                    {% else %}
+                    <p>{{ item.status }}</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
