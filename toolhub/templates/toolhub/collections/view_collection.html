@@ -1,0 +1,42 @@
+{% extends "toolhub/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ collection.title }}</h2>
+    <p>{{ collection.description }}</p>
+    
+    <div class="row">
+        {% for item in items %}
+        <div class="col-md-3 mb-4 text-center">
+            <!-- Image -->
+            <div class="card shadow-sm">
+                {% if item.image %}
+                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="img-fluid">
+                {% else %}
+                <img src="{% static 'toolhub/images/default_tool.png' %}" alt="Default Tool Image" class="img-fluid">
+                {% endif %}
+            </div>
+            <!-- Title and Description -->
+            <h5 class="fw-bold mt-2">{{ item.name }}</h5>
+            <p class="text-muted small">{{ item.description|truncatewords:10 }}</p>
+            <!-- Footer Buttons -->
+            <div class="d-flex justify-content-center gap-2">
+                <span class="badge {% if item.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}">
+                    {{ item.status|capfirst }}
+                </span>
+                {% if user.role == "librarian" %}
+                <a href="{% url 'edit_item' item.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                {% else %}
+                {% if item.status == "available" %}
+                <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary btn-sm">Request</a>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">No items available at the moment.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

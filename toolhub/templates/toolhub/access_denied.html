@@ -1,8 +1,9 @@
 {% extends "toolhub/base.html" %}
+{% block title %}Access Denied{% endblock %}
 {% block content %}
 <div class="container mt-5 text-center">
-    <h1 class="display-4 text-danger">Access Denied</h1>
-    <p class="lead">Sorry, you do not have permission to view this collection.</p>
-    <a href="{% url 'home' %}" class="btn btn-primary mt-4">Back to Home</a>
+    <h2 class="text-danger">Access Denied</h2>
+    <p>You do not have permission to view this page.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary mt-3">Go Home</a>
 </div>
 {% endblock %}

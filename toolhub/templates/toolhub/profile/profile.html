@@ -1,0 +1,55 @@
+{% extends "toolhub/base.html" %}
+{% load static %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-4 text-center">
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #eee;">
+                        {% else %}
+                            <img src="{% static 'toolhub/images/profile.png' %}" alt="Default Profile" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #eee;">
+                        {% endif %}
+                        <h4 class="fw-bold mt-2">{{ user.first_name }} {{ user.last_name }}</h4>
+                        <span class="badge {% if user.role == 'librarian' %}bg-primary{% else %}bg-secondary{% endif %} text-capitalize">
+                            {{ user.role }}
+                        </span>
+                    </div>
+                    <div class="col-md-8">
+                        <table class="table table-borderless mb-0">
+                            <tbody>
+                                <tr>
+                                    <th scope="row" class="text-muted">Email:</th>
+                                    <td>{{ user.email }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="text-muted">Username:</th>
+                                    <td>{{ user.username }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="text-muted">Joined:</th>
+                                    <td>{{ user.date_joined|date:"F j, Y" }}</td>
+                                </tr>
+                                {% if user.phone_number %}
+                                <tr>
+                                    <th scope="row" class="text-muted">Phone:</th>
+                                    <td>{{ user.phone_number }}</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                        <div class="mt-4">
+                            <a href="{% url 'update_profile' %}" class="btn btn-outline-primary me-2">Edit Profile</a>
+                            <a href="{% url 'logout' %}" class="btn btn-outline-danger">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

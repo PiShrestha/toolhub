@@ -2,30 +2,39 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import CustomUser
-from .forms import ProfilePictureForm, UserProfileForm, ItemForm, CollectionForm, PromoteUserForm
+from .models import CustomUser, Item, Collection, BorrowRequest, ItemReview
+from .forms import ProfilePictureForm, UserProfileForm, ItemForm, CollectionForm, PromoteUserForm, BorrowRequestForm
 from django.core.exceptions import PermissionDenied
-from .models import Item, Collection
-
+from django.views.decorators.http import require_POST
+from datetime import timedelta
+from django.utils.timezone import now
+from django.db.models import Q
 
 # Create your views here.
 @login_required
 def home(request):
+    query = request.GET.get("q", "")
     items = Item.objects.all()
     collections = Collection.objects.all()
 
-    print("DEBUG: Found items ->", items)
+    if query:
+        items = items.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        )
+        collections = collections.filter(
+            Q(title__icontains=query) | Q(description__icontains=query)
+        )
 
     if request.user.role == "librarian":
         return render(
             request,
             "toolhub/librarian_home.html",
-            {"user": request.user, "items": items, "collections": collections},
+            {"user": request.user, "items": items, "collections": collections, "query": query},
         )
     return render(
         request,
         "toolhub/patron_home.html",
-        {"user": request.user, "items": items, "collections": collections},
+        {"user": request.user, "items": items, "collections": collections, "query": query},
     )
 
 
@@ -135,10 +144,7 @@ def view_collection(request, collection_uuid):
     return render(
         request,
         "toolhub/view_collection.html",
-        {
-            "collection": collection,
-            "items": collection.items.all(),
-        },
+        {"collection": collection, "items": collection.items.all()},
     )
 
 
@@ -188,12 +194,12 @@ def delete_collection(request, collection_uuid):
 
     return redirect("edit_collection", collection_uuid=collection.uuid)
 
+
 @login_required
 def promote_user_view(request):
     if request.user.role != 'librarian':
         messages.error(request, "You are not authorized to promote users.")
-        return redirect('home')
-
+        return redirect("home")
     if request.method == 'POST':
         form = PromoteUserForm(request.POST)
         if form.is_valid():
@@ -208,8 +214,7 @@ def promote_user_view(request):
                     messages.success(request, f"{user.email} has been promoted to librarian!")
             except CustomUser.DoesNotExist:
                 messages.error(request, "User with that email does not exist.")
-            return redirect('promote_user')  # reload page
+            return redirect("promote_user")
     else:
         form = PromoteUserForm()
-
-    return render(request, 'toolhub/promote_user.html', {'form': form})
+    return render(request, "toolhub/promote_user.html", {"form": form})
