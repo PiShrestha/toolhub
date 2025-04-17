@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from ..forms import ItemForm
-from ..models import Item
+from ..models import Item, BorrowRequest
 
 @login_required
 def add_item(request):
@@ -35,7 +35,6 @@ def edit_item(request, item_id):
 
     return render(request, "toolhub/items/edit_item.html", {"form": form, "item": item})
 
-@login_required
 def tools_page(request):
     """Display all tools (items) with search functionality."""
     query = request.GET.get("q", "").strip()
@@ -43,5 +42,14 @@ def tools_page(request):
 
     if query:
         items = items.filter(name__icontains=query)
+
+    for item in items:
+        item.already_requested = False
+        if request.user.is_authenticated:
+            item.already_requested = BorrowRequest.objects.filter(
+                item=item,
+                user=request.user,
+                status__in=["pending", "approved"]
+            ).exists()
 
     return render(request, "toolhub/items/tools_page.html", {"items": items, "query": query})

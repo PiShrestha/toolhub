@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
-from ..models import Collection
+from ..models import Collection, BorrowRequest
 from ..forms import CollectionForm
 
 @login_required
@@ -25,21 +25,31 @@ def add_collection(request):
 
     return render(request, "toolhub/collections/add_collection.html", {"form": form})
 
-@login_required
 def view_collection(request, collection_uuid):
     collection = get_object_or_404(Collection, uuid=collection_uuid)
-
+    # Restrict access to private collections for anonymous users and unauthorized patrons
     if collection.visibility == "private":
-        is_librarian = request.user.role == "librarian"
-        is_allowed_user = collection.allowed_users.filter(id=request.user.id).exists()
-
-        if not (is_librarian or is_allowed_user or request.user == collection.creator):
+        is_librarian = request.user.is_authenticated and request.user.role == "librarian"
+        is_allowed_user = request.user.is_authenticated and collection.allowed_users.filter(id=request.user.id).exists()
+        is_creator = request.user.is_authenticated and request.user == collection.creator
+        if not (is_librarian or is_allowed_user or is_creator):
             return redirect("access_denied")
+
+    # Add already_requested logic for items in the collection
+    items = collection.items.all()
+    for item in items:
+        item.already_requested = False
+        if request.user.is_authenticated:
+            item.already_requested = BorrowRequest.objects.filter(
+                item=item,
+                user=request.user,
+                status__in=["pending", "approved"]
+            ).exists()
 
     return render(
         request,
         "toolhub/collections/view_collection.html",
-        {"collection": collection, "items": collection.items.all()},
+        {"collection": collection, "items": items},
     )
 
 @login_required
@@ -72,13 +82,25 @@ def delete_collection(request, collection_uuid):
 
     return redirect("edit_collection", collection_uuid=collection.uuid)
 
-@login_required
 def collections_page(request):
     """Display all collections with search functionality."""
-    query = request.GET.get("q", "").strip()
+    query = request.GET.get("q", "")
     collections = Collection.objects.all()
-
     if query:
         collections = collections.filter(title__icontains=query)
+    # Only show public collections to anonymous users
+    if not request.user.is_authenticated:
+        collections = collections.filter(visibility="public")
+
+    # Add already_requested logic for items in each collection
+    for collection in collections:
+        for item in collection.items.all():
+            item.already_requested = False
+            if request.user.is_authenticated:
+                item.already_requested = BorrowRequest.objects.filter(
+                    item=item,
+                    user=request.user,
+                    status__in=["pending", "approved"]
+                ).exists()
 
     return render(request, "toolhub/collections/collections_page.html", {"collections": collections, "query": query})

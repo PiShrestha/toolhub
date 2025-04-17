@@ -27,13 +27,17 @@ from .views.borrow_views import (
     borrow_request_detail,
     borrow_history,
     cancel_borrow_request,
+    patron_borrow_requests,
 )
 
 def access_denied(request):
     return render(request, "toolhub/access_denied.html")
 
 urlpatterns = [
+    # Admin
     path("admin/", admin.site.urls),
+
+    # Authentication
     path("accounts/", include("allauth.urls")),
 
     # Home
@@ -49,7 +53,7 @@ urlpatterns = [
     # Items
     path("items/new/", add_item, name="add_item"),
     path("tools/", tools_page, name="tools_page"),
-    path('items/<int:item_id>/edit/', edit_item, name='edit_item'),
+    path("items/<int:item_id>/edit/", edit_item, name="edit_item"),
 
     # Collections
     path("collections/new/", add_collection, name="add_collection"),
@@ -59,18 +63,22 @@ urlpatterns = [
     path("collections/", collections_page, name="collections_page"),
 
     # Borrow
-    path("items/<int:item_id>/request-borrow/", request_borrow, name="request_borrow"),
+    path("borrow/request/<int:request_id>/", borrow_request_detail, name="borrow_request_detail"),
+    
+    # Borrow-Librarian
     path("borrow/requests/", librarian_borrow_requests, name="librarian_borrow_requests"),
     path("borrow/approve/<int:request_id>/", approve_borrow, name="approve_borrow"),
     path("borrow/deny/<int:request_id>/", deny_borrow, name="deny_borrow"),
-    path("borrow/request/<int:request_id>/", borrow_request_detail, name="borrow_request_detail"),
-    path("borrow/history/", borrow_history, name="borrow_history"),
+
+    # Borrow-Patron
+    path("items/<int:item_id>/request-borrow/", request_borrow, name="request_borrow"),
+    path("my-borrow-requests/", patron_borrow_requests, name="patron_borrow_requests"),
     path("borrow/cancel/<int:request_id>/", cancel_borrow_request, name="cancel_borrow_request"),
 
     # Access Denied
-    path('access-denied/', access_denied, name='access_denied'),
+    path("access-denied/", access_denied, name="access_denied"),
 ]
 
-# Needed in development (DEBUG=True) because Django does not serve media files automatically.
+# Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

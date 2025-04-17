@@ -197,6 +197,7 @@ class BorrowRequest(models.Model):
     request_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
     return_due_date = models.DateField(null=True, blank=True)
+    note = models.TextField(blank=True, null=True)
 
     class Meta:
         unique_together = ("item", "user")  # Allow only one active request per user-item pair

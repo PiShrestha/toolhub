@@ -1,5 +1,6 @@
 from datetime import timezone
 from django import forms
+from django.utils import timezone
 from .models import CustomUser, Item, Collection, ItemReview, BorrowRequest
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
@@ -118,14 +119,17 @@ class ItemReviewForm(forms.ModelForm):
 
 
 class BorrowRequestForm(forms.ModelForm):
-    """
-    Form for librarians to approve borrow requests by setting a return due date.
-    """
+    note = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 2, "class": "form-control"}),
+        label="Note (optional)"
+    )
+
     class Meta:
         model = BorrowRequest
-        fields = ['return_due_date']
+        fields = ["return_due_date", "note"]
         widgets = {
-            'return_due_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            "return_due_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
         }
 
     def clean_return_due_date(self):

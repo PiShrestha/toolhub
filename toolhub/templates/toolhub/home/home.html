@@ -4,30 +4,45 @@
 
 {% block content %}
 <div class="container mt-5">
+    {% if not user.is_authenticated %}
+        <div class="alert alert-info text-center mb-5 py-4 rounded shadow-sm" style="background-color: #e3f7ff; border: 1px solid #b3e5fc;">
+            <h4 class="fw-bold text-primary mb-3">Sign in to ToolHub</h4>
+            <p class="text-muted mb-4">Sign in with Google to borrow items or create collections.</p>
+            <a href="{% url 'account_login' %}" class="btn btn-outline-primary btn-lg d-inline-flex align-items-center gap-2 px-4 py-2">
+                <img src="{% static 'toolhub/images/google_logo.svg' %}" alt="Google" style="height:24px;">
+                <span>Sign in with Google</span>
+            </a>
+        </div>
+    {% endif %}
 
     <!-- Collections Section -->
     <h2 class="mb-4">Collections</h2>
     <div class="row">
         {% for collection in collections %}
         <div class="col-md-3 mb-4 text-center">
-            <!-- Image -->
-            <div class="card shadow-sm">
-                {% if collection.image %}
-                    <img src="{{ collection.image.url }}" alt="Collection Image" class="img-fluid">
-                {% else %}
-                    <img src="{% static 'toolhub/images/logo.png' %}" alt="Default Collection Image" class="img-fluid"">
-                {% endif %}
-            </div>
-            <!-- Title and Description -->
-            <h5 class="fw-bold mt-2">{{ collection.title }}</h5>
-            <p class="text-muted small">{{ collection.description|truncatewords:10 }}</p>
-            <p class="text-muted small"># Items: {{ collection.items.count }}</p>
-            <!-- Footer Buttons -->
-            <div class="d-flex justify-content-center gap-2">
-                <a href="{% url 'view_collection' collection.uuid %}" class="btn btn-primary btn-sm">View</a>
-                {% if user.role == "librarian" %}
-                <a href="{% url 'edit_collection' collection.uuid %}" class="btn btn-outline-secondary btn-sm">Edit</a>
-                {% endif %}
+            <div class="card shadow-sm position-relative">
+                <!-- Image -->
+                <div class="position-relative">
+                    {% if collection.image %}
+                        <img src="{{ collection.image.url }}" alt="Collection Image" class="img-fluid rounded-top">
+                    {% else %}
+                        <img src="{% static 'toolhub/images/logo.png' %}" alt="Default Collection Image" class="img-fluid rounded-top">
+                    {% endif %}
+                    <!-- Overlay Buttons -->
+                    <div class="overlay d-flex justify-content-center align-items-center">
+                        <a href="{% url 'view_collection' collection.uuid %}" class="btn text-white">View</a>
+                        {% if user.role == "librarian" %}
+                        <a href="{% url 'edit_collection' collection.uuid %}" class="btn text-white">Edit</a>
+                        {% endif %}
+                    </div>
+                    <!-- Number of Items -->
+                    <span class="badge bg-primary position-absolute top-0 start-0 m-2"># Items: {{ collection.items.count }}</span>
+                </div>
+                <!-- Title and Description -->
+                <div class="card-body">
+                    <h5 class="fw-bold mt-2">{{ collection.title }}</h5>
+                    <p class="text-muted small mb-0">{{ collection.description|truncatewords:10 }}</p>
+                </div>
             </div>
         </div>
         {% empty %}
@@ -52,15 +67,23 @@
             <h5 class="fw-bold mt-2">{{ item.name }}</h5>
             <p class="text-muted small">{{ item.description|truncatewords:10 }}</p>
             <!-- Footer Buttons -->
-            <div class="d-flex justify-content-center gap-2">
-                <span class="badge {% if item.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}">
+            <div class="d-flex justify-content-center align-items-center gap-2">
+                <span class="badge d-flex rounded-pill justify-content-center align-items-center {% if item.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}">
                     {{ item.status|capfirst }}
                 </span>
                 {% if user.role == "librarian" %}
                 <a href="{% url 'edit_item' item.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
                 {% else %}
                 {% if item.status == "available" %}
-                <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary btn-sm">Request</a>
+                    {% if user.is_authenticated %}
+                        {% if item.already_requested %}
+                            <button class="btn btn-secondary" disabled>Already Requested</button>
+                        {% else %}
+                            <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary">Request</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'account_login' %}" class="btn btn-outline-primary">Sign in to Request</a>
+                    {% endif %}
                 {% endif %}
                 {% endif %}
             </div>

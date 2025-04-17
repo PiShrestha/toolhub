@@ -30,15 +30,23 @@
             <h5 class="fw-bold mt-2">{{ item.name }}</h5>
             <p class="text-muted small">{{ item.description|truncatewords:10 }}</p>
             <!-- Footer Buttons -->
-            <div class="d-flex justify-content-center gap-2">
-                <span class="badge {% if item.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}">
+            <div class="d-flex justify-content-center align-items-center gap-2">
+                <span class="badge d-flex rounded-pill justify-content-center align-items-center {% if item.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}">
                     {{ item.status|capfirst }}
                 </span>
                 {% if user.role == "librarian" %}
                 <a href="{% url 'edit_item' item.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
                 {% else %}
                 {% if item.status == "available" %}
-                <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary btn-sm">Request</a>
+                    {% if user.is_authenticated %}
+                        {% if item.already_requested %}
+                            <button class="btn btn-secondary" disabled>Already Requested</button>
+                        {% else %}
+                            <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary">Request</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'account_login' %}" class="btn btn-outline-primary">Sign in to Request</a>
+                    {% endif %}
                 {% endif %}
                 {% endif %}
             </div>

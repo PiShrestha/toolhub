@@ -14,8 +14,8 @@ def request_borrow(request, item_id):
     item = get_object_or_404(Item, pk=item_id)
 
     if item.status != "available":
-        messages.warning(request, f"Item '{item.title}' is not available for borrowing.")
-        return redirect("profile")
+        messages.warning(request, f"Item '{item.name}' is not available for borrowing.")
+        return redirect(request.META.get("HTTP_REFERER", "tools_page"))
 
     existing = BorrowRequest.objects.filter(
         item=item,
@@ -24,7 +24,7 @@ def request_borrow(request, item_id):
     ).exists()
     if existing:
         messages.warning(request, "You already have an active borrow request for this item.")
-        return redirect("profile")
+        return redirect(request.META.get("HTTP_REFERER", "tools_page"))
 
     if request.method == "POST":
         form = BorrowRequestForm(request.POST)
@@ -33,7 +33,7 @@ def request_borrow(request, item_id):
             borrow_request.item = item
             borrow_request.user = request.user
             borrow_request.save()
-            messages.success(request, f"Borrow request for '{item.title}' submitted successfully.")
+            messages.success(request, f"Borrow request for '{item.name}' submitted successfully.")
             return redirect("profile")
     else:
         form = BorrowRequestForm()
@@ -52,14 +52,14 @@ def approve_borrow(request, request_id):
     item = borrow_request.item
 
     if item.status == "borrowed":
-        messages.warning(request, f"Item '{item.title}' is already borrowed.")
+        messages.warning(request, f"Item '{item.name}' is already borrowed.")
     else:
         borrow_request.status = "approved"
         borrow_request.return_due_date = now().date() + timedelta(days=14)
         borrow_request.save()
         item.status = "borrowed"
         item.save()
-        messages.success(request, f"Approved request and marked '{item.title}' as borrowed.")
+        messages.success(request, f"Approved request and marked '{item.name}' as borrowed.")
 
     return redirect("librarian_borrow_requests")
 
@@ -79,18 +79,18 @@ def deny_borrow(request, request_id):
 
     borrow_request.status = "denied"
     borrow_request.save()
-    messages.success(request, f"Denied borrow request for '{borrow_request.item.title}'.")
+    messages.success(request, f"Denied borrow request for '{borrow_request.item.name}'.")
     return redirect("librarian_borrow_requests")
 
 
 @login_required
 def librarian_borrow_requests(request):
-    """View all pending borrow requests (for librarians)."""
+    """View all borrow requests (for librarians)."""
     if request.user.role != "librarian":
         raise PermissionDenied("Only librarians can view this page.")
 
-    requests = BorrowRequest.objects.filter(status="pending").select_related("item", "user").order_by("-request_date")
-    return render(request, "toolhub/borrow/librarian_borrow_requests.html", {"requests": requests})
+    borrow_requests = BorrowRequest.objects.select_related("item", "user").order_by("-request_date")
+    return render(request, "toolhub/borrow/borrow_requests.html", {"borrow_requests": borrow_requests})
 
 
 @login_required
@@ -126,8 +126,18 @@ def cancel_borrow_request(request, request_id):
 
     if borrow_request.status != "pending":
         messages.warning(request, "Only pending borrow requests can be canceled.")
-        return redirect("borrow_history")
+        return redirect("borrow_requests")
 
     borrow_request.delete()
     messages.success(request, "Your borrow request has been canceled successfully.")
-    return redirect("borrow_history")
+    return redirect("borrow_requests")
+
+
+@login_required
+def patron_borrow_requests(request):
+    """View all borrow requests for the logged-in patron."""
+    if request.user.role != "patron":
+        raise PermissionDenied("Only patrons can view their borrow requests.")
+
+    borrow_requests = BorrowRequest.objects.filter(user=request.user).order_by("-request_date")
+    return render(request, "toolhub/borrow/borrow_requests.html", {"borrow_requests": borrow_requests})
