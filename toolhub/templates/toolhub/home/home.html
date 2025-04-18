@@ -91,11 +91,11 @@
             <!-- Footer Buttons -->
             <div class="d-flex justify-content-center align-items-center gap-2">
                 <span class="badge d-flex rounded-pill justify-content-center align-items-center {% if item.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}">
-                    {{ item.status|capfirst }}
+                    {{ item.get_status_display  }}
                 </span>
                 {% if user.role == "librarian" %}
                 <a href="{% url 'edit_item' item.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
-                {% else %}
+                {% endif %}
                 {% if item.status == "available" %}
                     {% if user.is_authenticated %}
                         {% if item.already_requested %}
@@ -111,7 +111,7 @@
                         <a href="{% url 'return_item' item.id %}" class="btn btn-danger">Return</a>
                     {% endif %}
                 {% endif %}
-                {% endif %}
+                
             </div>
         </div>
         {% empty %}

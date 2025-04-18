@@ -33,7 +33,7 @@
                     {% if user.role == "librarian" %}
                         <td>{{ request.user.email }}</td>
                     {% endif %}
-                    <td>{{ request.status|title }}</td>
+                    <td>{{ request.get_status_display }}</td>
                     <td>{{ request.request_date|date:"M d, Y" }}</td>
                     <td>
                         {% if request.return_due_date %}
