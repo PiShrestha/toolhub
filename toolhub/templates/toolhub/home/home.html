@@ -98,11 +98,9 @@
                 {% endif %}
                 {% if item.status == "available" %}
                     {% if user.is_authenticated %}
-                        {% if item.already_requested %}
-                            <button class="btn btn-secondary" disabled>Already Requested</button>
-                        {% else %}
-                            <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary">Request</a>
-                        {% endif %}
+                  
+                        <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary">Request</a>
+
                     {% else %}
                         <a href="{% url 'account_login' %}" class="btn btn-outline-primary">Sign in to Request</a>
                     {% endif %}

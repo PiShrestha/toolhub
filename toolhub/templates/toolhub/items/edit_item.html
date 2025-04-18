@@ -9,6 +9,12 @@
         <button type="submit" class="btn btn-primary">Save Changes</button>
         
         <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+    
+        
+    </form>
+    <form method="post" action="{% url 'delete_item' item.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger mt-3">Delete Item</button>
     </form>
 </div>
 {% endblock %}
