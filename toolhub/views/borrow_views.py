@@ -33,6 +33,9 @@ def request_borrow(request, item_id):
             borrow_request.item = item
             borrow_request.user = request.user
             borrow_request.save()
+
+            item.status = "currently_requested"
+            item.save()
             messages.success(request, f"Borrow request for '{item.name}' submitted successfully.")
             return redirect("home")
     else:

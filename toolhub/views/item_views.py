@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from ..forms import ItemForm
 from ..models import Item, BorrowRequest
+from django.views.decorators.http import require_POST
 
 @login_required
 def add_item(request):
@@ -34,6 +35,12 @@ def edit_item(request, item_id):
         form = ItemForm(instance=item)
 
     return render(request, "toolhub/items/edit_item.html", {"form": form, "item": item})
+
+@login_required
+def delete_item(request, item_id):
+    item = get_object_or_404(Item, id=item_id)
+    item.delete()
+    return redirect("home")
 
 def tools_page(request):
     """Display all tools (items) with search functionality."""

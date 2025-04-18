@@ -12,7 +12,7 @@ from .views.profile_views import (
     logout_view,
     search_users,
 )
-from .views.item_views import add_item, tools_page, edit_item
+from .views.item_views import add_item, tools_page, edit_item, delete_item
 from .views.collection_views import (
     add_collection,
     view_collection,
@@ -30,6 +30,7 @@ from .views.borrow_views import (
     cancel_borrow_request,
     patron_borrow_requests,
     return_item,
+    
 )
 
 def access_denied(request):
@@ -57,6 +58,7 @@ urlpatterns = [
     path("items/new/", add_item, name="add_item"),
     path("tools/", tools_page, name="tools_page"),
     path("items/<int:item_id>/edit/", edit_item, name="edit_item"),
+    path("items/<int:item_id>/delete/", delete_item, name="delete_item"),
 
     # Collections
     path("collections/new/", add_collection, name="add_collection"),

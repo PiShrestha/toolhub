@@ -68,6 +68,7 @@ class Item(models.Model):
     STATUS_CHOICES = [
         ("available", "Available"),
         ("currently_borrowed", "Currently Borrowed"),
+        ("currently_requested", "Already Requested"),
         ("being_repaired", "Being Repaired"),
         ("lost", "Lost"),
         ("archived", "Archived"),
