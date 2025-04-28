@@ -193,3 +193,44 @@ h1.fw-bold {
   color: #fff;
   border-color: #007bff;
 }
+
+.table-sm td, .table-sm th {
+  vertical-align: middle;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Scrollable preview cards */
+.card .table-wrapper {
+  max-height: 250px;
+  overflow-y: auto;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Remove button in tables */
+.table .btn-outline-danger {
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  border-radius: 5px;
+}
+
+/* Fix spacing between input and results */
+.card .form-control + .list-group {
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Prevent table cell overflow */
+.table td {
+  word-break: break-word;
+}
+
+/* Sharpen up placeholder styling */
+input::placeholder {
+  color: #adb5bd;
+  font-size: 0.95rem;
+}

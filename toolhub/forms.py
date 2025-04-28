@@ -63,52 +63,41 @@ class CollectionForm(forms.ModelForm):
         help_text="Only applies to private collections.",
     )
 
+    items = forms.ModelMultipleChoiceField(
+        queryset=Item.objects.all(),
+        widget=forms.MultipleHiddenInput,
+        required=False
+    )
+
     class Meta:
         model = Collection
-        fields = [
-            "title",
-            "description",
-            "visibility",
-            "items",
-            "image",
-            "allowed_users",
-        ]
-        widgets = {
-            "items": forms.CheckboxSelectMultiple(),
-        }
+        fields = ['title', 'description', 'visibility', 'image', 'items', 'allowed_users']
 
-    def clean_items(self):
-        items = self.cleaned_data.get("items")
-        visibility = self.cleaned_data.get("visibility")
-        instance = self.instance  # may be unsaved on create
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If bound data is present but no items/allowed_users, set as empty list.
+        if self.data and "items" not in self.data:
+            self.data = self.data.copy()
+            self.data.setlist("items", [])
+        if self.data and "allowed_users" not in self.data:
+            self.data = self.data.copy()
+            self.data.setlist("allowed_users", [])
 
+    def clean(self):
+        cleaned = super().clean()
+        visibility = cleaned.get("visibility")
+        items      = cleaned.get("items") or []   # <-- ensure iterable
+
+        
         for item in items:
-            private_collections = item.collections.filter(visibility=Collection.PRIVATE)
-            public_collections = item.collections.filter(visibility=Collection.PUBLIC)
-
-            if visibility == Collection.PRIVATE:
-                if private_collections.exists():
-                    if (
-                        not instance.pk
-                        or private_collections.exclude(pk=instance.pk).exists()
-                    ):
-                        raise ValidationError(
-                            f"Item '{item.name}' is already in another private collection and cannot be reused."
-                        )
-
-            if visibility == Collection.PUBLIC:
-                if private_collections.exists():
-                    raise ValidationError(
-                        f"Item '{item.name}' is already in a private collection and cannot be added to a public one."
-                    )
-
-            if visibility == Collection.PRIVATE:
-                if public_collections.exists():
-                    raise ValidationError(
-                        f"Item '{item.name}' is already in a public collection and cannot be added to a private one."
-                    )
-
-        return items
+            other_private = item.collections.filter(
+                visibility=Collection.PRIVATE
+            ).exclude(pk=self.instance.pk)
+            if other_private.exists():
+                raise forms.ValidationError(
+                    f"Item “{item.name}” is already in another private collection."
+                )
+        return cleaned
 
 
 class ItemReviewForm(forms.ModelForm):

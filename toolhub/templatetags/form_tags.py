@@ -1,4 +1,4 @@
-# yourapp/templatetags/form_tags.py
+# toolhub/templatetags/form_tags.py
 from django import template
 
 register = template.Library()

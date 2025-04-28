@@ -32,6 +32,7 @@ from .views.borrow_views import (
     return_item,
     
 )
+from .views.api import search_items, search_users_collections
 
 def access_denied(request):
     return render(request, "toolhub/access_denied.html")
@@ -66,6 +67,8 @@ urlpatterns = [
     path("collections/<uuid:collection_uuid>/edit/", edit_collection, name="edit_collection"),
     path("collections/<uuid:collection_uuid>/delete/", delete_collection, name="delete_collection"),
     path("collections/", collections_page, name="collections_page"),
+    path("api/search-items/", search_items, name="api_search_items"),
+    path("api/search-users/", search_users_collections, name="api_search_users"),
 
     # Borrow
     path("borrow/request/<int:request_id>/", borrow_request_detail, name="borrow_request_detail"),

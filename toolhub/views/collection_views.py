@@ -7,6 +7,7 @@ from ..forms import CollectionForm
 @login_required
 def add_collection(request):
     if request.method == "POST":
+        print(request.POST)
         form = CollectionForm(request.POST, request.FILES)
 
         if request.user.role != "librarian":
@@ -60,14 +61,33 @@ def edit_collection(request, collection_uuid):
         return redirect('access_denied')
 
     if request.method == "POST":
+        print(request.POST)  # DEBUG
         form = CollectionForm(request.POST, request.FILES, instance=collection)
         if form.is_valid():
-            form.save()
-            return redirect('view_collection', collection_uuid=collection.uuid)
+            collection = form.save(commit=False)
+
+            # Update items and allowed_users before saving
+            if "items" in request.POST:
+                collection.items.set(form.cleaned_data.get("items", []))
+            else:
+                collection.items.clear()
+
+            if "allowed_users" in request.POST:
+                collection.allowed_users.set(form.cleaned_data.get("allowed_users", []))
+            else:
+                collection.allowed_users.clear()
+
+            collection.save()  # Save the collection after updating relationships
+            return redirect("view_collection", collection_uuid=str(collection.uuid))
+        else:
+            print("Form errors:", form.errors)  # DEBUG
     else:
         form = CollectionForm(instance=collection)
 
-    return render(request, "toolhub/collections/edit_collection.html", {"form": form, "collection": collection})
+    return render(request, "toolhub/collections/edit_collection.html", {
+        "form": form,
+        "collection": collection,
+    })
 
 @login_required
 def delete_collection(request, collection_uuid):

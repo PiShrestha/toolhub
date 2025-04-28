@@ -1,45 +1,95 @@
 {% extends "toolhub/base.html" %}
-{% load form_tags %}
+{% load form_tags static %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-lg border-0 rounded-4">
-                <div class="card-body p-5">
-                    <h2 class="card-title text-center mb-4">
-                        <i class="bi bi-folder-plus me-2"></i> Add New Item
-                    </h2>
+<div class="container-lg my-5">
 
-                    <form method="post" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
+  <!-- Hero header -->
+  <header class="text-center mb-5">
+    <h1 class="fw-bold display-5">
+      <i class="bi bi-plus-circle me-2"></i>
+      Add New Item
+    </h1>
+    <p class="text-muted mb-0">Fill out the details to add a new item to the catalog.</p>
+  </header>
 
-                        {% for field in form %}
-                        <div class="mb-4">
-                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
-                                {{ field.label }}
-                            </label>
-                            {{ field|add_class:"form-control" }}
+  <form method="post" enctype="multipart/form-data" class="row g-5" novalidate>
+    {% csrf_token %}
 
-                            {% if field.help_text %}
-                            <div class="form-text text-muted">{{ field.help_text }}</div>
-                            {% endif %}
-
-                            {% for error in field.errors %}
-                            <div class="text-danger small mt-1">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                        {% endfor %}
-
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">
-                                <i class="bi bi-check-circle me-1"></i> Save Item
-                            </button>
-                        </div>
-                    </form>
-                </div>
+    <!-- Sticky preview aside -->
+    <aside class="col-lg-4 order-lg-2">
+      <div class="sticky-top" style="top:6rem;">
+        <div class="card shadow-sm mb-4">
+          <h6 class="card-header bg-light border-bottom fw-semibold">
+            <i class="bi bi-image me-1"></i> Item Image
+          </h6>
+          <div class="card-body">
+            <input type="file" id="image-upload" name="image" accept="image/*" class="form-control mb-3">
+            <div id="image-preview"
+                 class="ratio ratio-4x3 rounded overflow-hidden bg-light d-flex align-items-center justify-content-center">
+              <img src="{% static 'toolhub/images/default_tool.png' %}"
+                   class="img-fluid object-fit-cover"
+                   alt="Image preview">
             </div>
+          </div>
         </div>
-    </div>
+      </div>
+    </aside>
+
+    <!-- Main form fields -->
+    <section class="col-lg-8">
+
+      <!-- 1 – Basic Info -->
+      <fieldset class="mb-4">
+        <legend class="h5 mb-3 border-bottom pb-2">1. Basic Info</legend>
+        {% include "toolhub/includes/form_field.html" with field=form.name %}
+        {% include "toolhub/includes/form_field.html" with field=form.identifier %}
+      </fieldset>
+
+      <!-- 2 – Status & Location -->
+      <fieldset class="mb-4">
+        <legend class="h5 mb-3 border-bottom pb-2">2. Status &amp; Location</legend>
+        {{ form.status|add_class:"form-select mb-3" }}
+        {{ form.location|add_class:"form-select" }}
+      </fieldset>
+
+      <!-- 3 – Description -->
+      <fieldset class="mb-4">
+        <legend class="h5 mb-3 border-bottom pb-2">3. Description</legend>
+        {{ form.description|add_class:"form-control" }}
+        {% if form.description.help_text %}
+          <div class="form-text text-muted">{{ form.description.help_text }}</div>
+        {% endif %}
+      </fieldset>
+
+      <div class="text-center mt-5">
+        <button type="submit" class="btn btn-primary px-5">
+          <i class="bi bi-check-circle me-1"></i> Save Item
+        </button>
+        <a href="{% url 'tools_page' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+      </div>
+
+    </section>
+  </form>
 </div>
+
+<!-- Live image preview -->
+<script>
+  document.getElementById('image-upload').addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('image-preview');
+    if (!file) {
+        preview.innerHTML =
+            "<img src=\"{% static 'toolhub/images/default_tool.png' %}\" " +
+            "class=\"img-fluid object-fit-cover\" alt=\"preview\">";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = evt => {
+      preview.innerHTML =
+        `<img src="${evt.target.result}" class="img-fluid object-fit-cover" alt="Image preview">`;
+    };
+    reader.readAsDataURL(file);
+  });
+</script>
 {% endblock %}

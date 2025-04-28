@@ -177,19 +177,6 @@ class Collection(models.Model):
     def __str__(self):
         return self.title
 
-    def clean(self):
-        """
-        Optional: Enforce that if a collection is private, an item in it should not belong to any other collection.
-        You can decide whether to enforce this at the model level or handle it in your form/view.
-        """
-        if self.visibility == self.PRIVATE:
-            for item in self.items.all():
-                if item.collections.exclude(uuid=self.uuid).exists():
-                    raise ValidationError(
-                        f"Item '{item.title}' already belongs to another collection."
-                    )
-
-
 class BorrowRequest(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pending"),
@@ -244,4 +231,4 @@ class ItemReview(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Review for {self.item.title} by {self.user.email}"
+        return f"Review for {self.item.name} by {self.user.email}"

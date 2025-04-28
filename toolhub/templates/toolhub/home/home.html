@@ -41,32 +41,7 @@
     <h2 class="mb-4">Collections</h2>
     <div class="row">
         {% for collection in collections %}
-        <div class="col-md-3 mb-4 text-center">
-            <div class="card shadow-sm position-relative">
-                <!-- Image -->
-                <div class="position-relative">
-                    {% if collection.image %}
-                        <img src="{{ collection.image.url }}" alt="Collection Image" class="img-fluid rounded-top">
-                    {% else %}
-                        <img src="{% static 'toolhub/images/default_collection.png' %}" alt="Default Collection Image" class="img-fluid rounded-top">
-                    {% endif %}
-                    <!-- Overlay Buttons -->
-                    <div class="overlay d-flex justify-content-center align-items-center">
-                        <a href="{% url 'view_collection' collection.uuid %}" class="btn text-white">View</a>
-                        {% if user.role == "librarian" %}
-                        <a href="{% url 'edit_collection' collection.uuid %}" class="btn text-white">Edit</a>
-                        {% endif %}
-                    </div>
-                    <!-- Number of Items -->
-                    <span class="badge bg-primary position-absolute top-0 start-0 m-2"># Items: {{ collection.items.count }}</span>
-                </div>
-                <!-- Title and Description -->
-                <div class="card-body">
-                    <h5 class="fw-bold mt-2">{{ collection.title }}</h5>
-                    <p class="text-muted small mb-0">{{ collection.description|truncatewords:10 }}</p>
-                </div>
-            </div>
-        </div>
+        {% include "toolhub/includes/_collection_card.html" %}
         {% empty %}
         <p class="text-muted">No collections available at the moment.</p>
         {% endfor %}
