@@ -24,11 +24,9 @@ from .views.borrow_views import (
     request_borrow,
     approve_borrow,
     deny_borrow,
-    librarian_borrow_requests,
+    borrow_overview,
     borrow_request_detail,
-    borrow_history,
     cancel_borrow_request,
-    patron_borrow_requests,
     return_item,
     
 )
@@ -75,13 +73,12 @@ urlpatterns = [
     path("borrow/request/<int:request_id>/", borrow_request_detail, name="borrow_request_detail"),
     
     # Borrow-Librarian
-    path("borrow/requests/", librarian_borrow_requests, name="librarian_borrow_requests"),
     path("borrow/approve/<int:request_id>/", approve_borrow, name="approve_borrow"),
     path("borrow/deny/<int:request_id>/", deny_borrow, name="deny_borrow"),
 
     # Borrow-Patron
     path("items/<int:item_id>/request-borrow/", request_borrow, name="request_borrow"),
-    path("my-borrow-requests/", patron_borrow_requests, name="patron_borrow_requests"),
+    path("my-borrow-requests/", borrow_overview, name="my_borrow_requests"),
     path("borrow/cancel/<int:request_id>/", cancel_borrow_request, name="cancel_borrow_request"),
 
     # Access Denied

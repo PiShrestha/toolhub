@@ -1,0 +1,65 @@
+{% extends "toolhub/base.html" %}
+{% load static %}
+{% block title %}My Borrow History{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4">My Borrow History</h1>
+
+  {% if borrow_requests %}
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th style="width:28%">Item</th>
+          <th style="width:14%">Status</th>
+          <th style="width:18%">Requested</th>
+          <th style="width:18%">Return due</th>
+          <th style="width:22%">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for req in borrow_requests %}
+        <tr>
+          <td class="position-relative">
+            <a href="{% url 'view_item' req.item.id %}"
+               class="stretched-link d-block text-decoration-none text-reset fw-semibold">
+              {{ req.item.name }}
+            </a>
+          </td>
+
+          <td>
+            <span class="badge
+              {% if req.status == 'approved' %}bg-success
+              {% elif req.status == 'denied' %}bg-danger
+              {% elif req.status == 'pending' %}bg-warning text-dark
+              {% elif req.status == 'returned_on_time' %}bg-info
+              {% else %}bg-secondary{% endif %}">
+              {{ req.get_status_display }}
+            </span>
+          </td>
+
+          <td>{{ req.request_date|date:"M d, Y" }}</td>
+          <td>{{ req.return_due_date|date:"M d, Y"|default:"—" }}</td>
+
+          {# actions (no redirect conflict any more) #}
+          <td>
+            {% if req.status == "pending" %}
+            <form method="post" action="{% url 'cancel_borrow_request' req.id %}" style="display:inline;"
+                onsubmit="return confirm('Are you sure you want to cancel this borrow request?');">
+            {% csrf_token %}
+            <button class="btn btn-warning btn-sm" type="submit">Cancel</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-muted text-center">You have no borrow history.</p>
+  {% endif %}
+</div>
+{% endblock %}

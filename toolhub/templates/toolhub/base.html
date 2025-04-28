@@ -39,11 +39,11 @@
                         {% if user.is_authenticated %}
                             {% if user.role == "patron" %}
                                 <li class="nav-item">
-                                    <a class="nav-link fw-semibold" href="{% url 'patron_borrow_requests' %}">My Borrow History</a>
+                                    <a class="nav-link fw-semibold" href="{% url 'my_borrow_requests' %}">My Borrow History</a>
                                 </li>
                             {% elif user.role == "librarian" %}
                                 <li class="nav-item">
-                                    <a class="nav-link fw-semibold" href="{% url 'librarian_borrow_requests' %}">Borrow Requests</a>
+                                    <a class="nav-link fw-semibold" href="{% url 'my_borrow_requests' %}">Borrow Requests</a>
                                 </li>
                             {% endif %}
                         {% endif %}

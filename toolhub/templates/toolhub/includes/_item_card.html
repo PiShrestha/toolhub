@@ -25,10 +25,23 @@
       <p class="small text-muted mb-3">{{ item.description|truncatewords:10 }}</p>
 
       <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
-        <span class="badge rounded-pill 
-          {% if item.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}">
-          {{ item.user_status|default:item.get_status_display|default:"Status Unknown" }}
-        </span>
+        {% with st=item.user_status %}
+          {% if st == "Available" %}
+            <span class="badge bg-success">
+              <i class="bi bi-check-circle-fill me-1"></i>{{ st }}
+            </span>
+          {% elif st == "Already requested" %}
+            <span class="badge bg-warning text-dark">
+              <i class="bi bi-clock-history me-1"></i>{{ st }}
+            </span>
+          {% elif st == "Borrowed" %}
+            <span class="badge bg-secondary">
+              <i class="bi bi-hourglass-split me-1"></i>{{ st }}
+            </span>
+          {% else %}
+            <span class="badge bg-secondary">{{ st }}</span>
+          {% endif %}
+        {% endwith %}
         {% if item.average_rating %}
           <span class="text-warning small">
             {{ item.average_rating|floatformat:1 }} ★
@@ -48,7 +61,12 @@
           {% endif %}
         {% else %}
           {% if user.is_authenticated and item.borrower and item.borrower.pk == user.pk %}
-            <a href="{% url 'return_item' item.id %}" class="btn btn-danger btn-sm w-100">Return</a>
+            <!-- Return action -->
+          <form method="post" action="{% url 'return_item' item.id %}" style="display:inline;"
+                onsubmit="return confirm('Are you sure you want to return this item?');">
+            {% csrf_token %}
+            <button class="btn btn-primary btn-sm" type="submit">Return</button>
+          </form>
           {% endif %}
         {% endif %}
       </div>

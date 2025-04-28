@@ -122,19 +122,25 @@ class Item(models.Model):
         """
         Return a display string specific to the given user.
         """
-        if user == None or not user.is_authenticated:
+        # For anonymous users, we only display global status for borrowed items.
+        if user is None or not user.is_authenticated:
             if self.status == "currently_borrowed":
                 return "Currently Borrowed"
-
-        # Case 1 – the user already has an approved or pending request
-        if self.borrow_requests.filter(
-                user=user, status__in=["pending", "approved"]).exists():
+            return self.get_status_display()
+        
+        # If the user already has a pending or approved borrow request for this item, show it.
+        if self.borrow_requests.filter(user=user, status__in=["pending", "approved"]).exists():
             return "Already requested"
-
-        # Case 2 – someone else has borrowed it
+        
+        # If the item is marked as 'currently_requested' (someone else requested it)
+        # for users who haven't requested it, display it as available.
+        if self.status == "currently_requested":
+            return "Available"
+        
+        # If the item is marked as currently borrowed and the borrower is someone else.
         if self.status == "currently_borrowed" and self.borrower != user:
             return "Borrowed"
-
+        
         return self.get_status_display()
 
     def mark_as_borrowed(self):

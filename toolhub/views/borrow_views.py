@@ -2,27 +2,23 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.views.decorators.http import require_POST
 from django.utils.timezone import now
 from datetime import timedelta
 from ..models import BorrowRequest, Item
 from ..forms import BorrowRequestForm
-from django.views.decorators.http import require_POST
 
 @login_required
 def request_borrow(request, item_id):
     """Handle borrow requests for an item."""
     item = get_object_or_404(Item, pk=item_id)
 
-    if item.status != "available":
-        messages.warning(request, f"Item '{item.name}' is not available for borrowing.")
-        return redirect(request.META.get("HTTP_REFERER", "tools_page"))
-
-    existing = BorrowRequest.objects.filter(
-        item=item,
-        user=request.user,
-        status__in=["pending", "approved"]
-    ).exists()
-    if existing:
+    # Check if the user already has a pending/approved request for this item.
+    if BorrowRequest.objects.filter(
+            item=item,
+            user=request.user,
+            status__in=["pending", "approved"],
+    ).exists():
         messages.warning(request, "You already have an active borrow request for this item.")
         return redirect(request.META.get("HTTP_REFERER", "tools_page"))
 
@@ -34,8 +30,10 @@ def request_borrow(request, item_id):
             borrow_request.user = request.user
             borrow_request.save()
 
-            item.status = "currently_requested"
-            item.save()
+            # Remove or comment out the global update:
+            # item.status = "currently_requested"
+            # item.save()
+
             messages.success(request, f"Borrow request for '{item.name}' submitted successfully.")
             return redirect("home")
     else:
@@ -65,13 +63,13 @@ def approve_borrow(request, request_id):
         item.save()
         messages.success(request, f"Approved request and marked '{item.name}' as borrowed.")
 
-    return redirect("librarian_borrow_requests")
+    return redirect("my_borrow_requests")
 
 
 @login_required
 @require_POST
 def deny_borrow(request, request_id):
-    """Deny a borrow request."""
+    """Deny a borrow request and reset the item's status to available."""
     if request.user.role != "librarian":
         raise PermissionDenied("Only librarians can deny requests.")
 
@@ -79,22 +77,39 @@ def deny_borrow(request, request_id):
 
     if borrow_request.status != "pending":
         messages.warning(request, "Only pending requests can be denied.")
-        return redirect("librarian_borrow_requests")
+        return redirect("my_borrow_requests")
 
+    # Set request status to denied
     borrow_request.status = "denied"
     borrow_request.save()
-    messages.success(request, f"Denied borrow request for '{borrow_request.item.name}'.")
-    return redirect("librarian_borrow_requests")
+
+    # Reset the related item status to available if needed
+    item = borrow_request.item
+    if item.status in ["currently_requested"]:
+        item.status = "available"
+        item.save()
+
+    messages.success(request, f"Denied borrow request for '{item.name}' and reset its status to available.")
+    return redirect("my_borrow_requests")
 
 
 @login_required
-def librarian_borrow_requests(request):
-    """View all borrow requests (for librarians)."""
-    if request.user.role != "librarian":
-        raise PermissionDenied("Only librarians can view this page.")
-
-    borrow_requests = BorrowRequest.objects.select_related("item", "user").order_by("-request_date")
-    return render(request, "toolhub/borrow/borrow_requests.html", {"borrow_requests": borrow_requests})
+def borrow_overview(request):
+    """
+    Render a borrow overview page.
+    
+    Librarians see all borrow requests with approve/deny actions.
+    Patrons see their own borrow requests (history) with an option to cancel pending requests.
+    """
+    if request.user.role == "librarian":
+        # Get all borrow requests with related item and user
+        borrow_requests = BorrowRequest.objects.select_related("item", "user").order_by("-request_date")
+        template = "toolhub/borrow/borrow_requests.html"
+    else:  # patron
+        borrow_requests = BorrowRequest.objects.filter(user=request.user).order_by("-request_date")
+        template = "toolhub/borrow/borrow_history.html"
+    
+    return render(request, template, {"borrow_requests": borrow_requests})
 
 
 @login_required
@@ -110,16 +125,6 @@ def borrow_request_detail(request, request_id):
 
 
 @login_required
-def borrow_history(request):
-    """View borrow history for the logged-in patron."""
-    if request.user.role != "patron":
-        raise PermissionDenied("Only patrons can view their borrow history.")
-
-    borrow_requests = BorrowRequest.objects.filter(user=request.user).order_by("-request_date")
-    return render(request, "toolhub/borrow/borrow_history.html", {"borrow_requests": borrow_requests})
-
-
-@login_required
 @require_POST
 def cancel_borrow_request(request, request_id):
     """Cancel a pending borrow request."""
@@ -130,21 +135,12 @@ def cancel_borrow_request(request, request_id):
 
     if borrow_request.status != "pending":
         messages.warning(request, "Only pending borrow requests can be canceled.")
-        return redirect("patron_borrow_requests")
+        return redirect("my_borrow_requests")
 
     borrow_request.delete()
     messages.success(request, "Your borrow request has been canceled successfully.")
-    return redirect("patron_borrow_requests")
+    return redirect("my_borrow_requests")
 
-
-@login_required
-def patron_borrow_requests(request):
-    """View all borrow requests for the logged-in patron."""
-    if request.user.role != "patron":
-        raise PermissionDenied("Only patrons can view their borrow requests.")
-
-    borrow_requests = BorrowRequest.objects.filter(user=request.user).order_by("-request_date")
-    return render(request, "toolhub/borrow/borrow_requests.html", {"borrow_requests": borrow_requests})
 
 @login_required
 def return_item(request, item_id):
