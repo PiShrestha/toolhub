@@ -117,6 +117,7 @@ def collections_page(request):
         for item in collection.items.all():
             item.already_requested = False
             if request.user.is_authenticated:
+                item.user_status = item.status_for_user(request.user)
                 item.already_requested = BorrowRequest.objects.filter(
                     item=item,
                     user=request.user,

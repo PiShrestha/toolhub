@@ -1,0 +1,45 @@
+/* Hover overlay for item cards */
+.item-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .item-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    opacity: 0;
+    transition: opacity .2s ease;
+  }
+  .item-card:hover .item-overlay { opacity: 1; }
+  .item-overlay .btn {
+    --bs-btn-bg: rgba(150, 150, 150, 0.85);
+    --bs-btn-border-color: transparent;
+  }
+
+  /* star-rating (flex row-reverse makes clicking intuitive)  */
+.star-rating {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  gap: .25rem;
+}
+.star-rating input {
+  display: none;
+}
+.star-rating label {
+  font-size: 1.4rem;
+  color: #ced4da;
+  cursor: pointer;
+  transition: color .15s;
+}
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: #f7b924;
+}
+
+/* nicer card image */
+.card-img-top.ratio {
+  object-fit: cover;
+  height: auto;
+}
+  

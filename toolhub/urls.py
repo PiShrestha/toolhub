@@ -12,7 +12,7 @@ from .views.profile_views import (
     logout_view,
     search_users,
 )
-from .views.item_views import add_item, tools_page, edit_item, delete_item
+from .views.item_views import add_item, tools_page, edit_item, delete_item, view_item
 from .views.collection_views import (
     add_collection,
     view_collection,
@@ -60,6 +60,7 @@ urlpatterns = [
     path("tools/", tools_page, name="tools_page"),
     path("items/<int:item_id>/edit/", edit_item, name="edit_item"),
     path("items/<int:item_id>/delete/", delete_item, name="delete_item"),
+    path("items/<int:item_id>/", view_item, name="view_item"),
 
     # Collections
     path("collections/new/", add_collection, name="add_collection"),

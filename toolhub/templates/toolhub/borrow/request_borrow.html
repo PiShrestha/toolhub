@@ -1,29 +1,118 @@
 {% extends "toolhub/base.html" %}
 {% load static %}
 
-{% block title %}Request Borrow{% endblock %}
+{% block title %}Request to Borrow {{ item.name }}{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4">Request to Borrow "{{ item.name }}"</h2>
-    <form method="post" class="border p-4 rounded shadow-sm bg-light">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="{{ form.return_due_date.id_for_label }}" class="form-label">Return Due Date</label>
-            {{ form.return_due_date }}
-            {% for error in form.return_due_date.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
+<div class="container my-5">
+
+  <h1 class="h3 fw-bold text-center mb-5">
+    <i class="bi bi-clipboard-check me-1"></i>
+    Borrow&nbsp;Request
+  </h1>
+
+  <div class="row g-5 justify-content-center">
+
+    {# — Item summary — #}
+    <aside class="col-lg-5">
+      <div class="card shadow-sm h-100">
+        {% if item.image %}
+          <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
+        {% else %}
+          <img src="{% static 'toolhub/images/default_tool.png' %}" class="card-img-top" alt="Default image">
+        {% endif %}
+
+        <div class="card-body">
+          <h5 class="fw-bold">{{ item.name }}</h5>
+          <p class="text-muted small mb-3">{{ item.description|default:"No description." }}</p>
+
+          <div class="d-flex flex-wrap gap-2">
+            {# availability badge for *this* user #}
+            {% if item.status == "Available" and request.user.is_authenticated %}
+              <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>Available</span>
+            {% elif item.status == "Already requested" and request.user.is_authenticated %}
+              <span class="badge bg-warning text-dark"><i class="bi bi-clock-history me-1"></i>Already&nbsp;requested</span>
+            {% elif item.status == "currently_borrowed" and request.user.is_authenticated %}
+              <span class="badge bg-secondary"><i class="bi bi-hourglass-split me-1"></i>Borrowed</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ item.status_for_user }}</span>
+            {% endif %}
+
+            <span class="badge bg-info text-dark">
+              <i class="bi bi-geo-alt-fill me-1"></i>
+              {{ item.get_location_display }}
+            </span>
+          </div>
         </div>
-        <div class="mb-3">
-            <label for="{{ form.note.id_for_label }}" class="form-label">Note (optional)</label>
-            {{ form.note }}
-            {% for error in form.note.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
+      </div>
+    </aside>
+
+    {# — Borrow form — #}
+    <section class="col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light fw-semibold">
+          <i class="bi bi-calendar-plus me-1"></i>
+          Request details
         </div>
-        <button type="submit" class="btn btn-primary">Submit Request</button>
-        <a href="{% url 'home' %}" class="btn btn-secondary ms-2">Cancel</a>
-    </form>
+
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            {# Return period (start today → chosen due date) #}
+            <div class="mb-4">
+              <label for="{{ form.borrow_start_date.id_for_label }}" class="form-label fw-semibold">
+                Start Date
+              </label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
+                {{ form.borrow_start_date }}
+              </div>
+              {% for error in form.borrow_start_date.errors %}
+                <div class="small text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-4">
+              <label for="{{ form.return_due_date.id_for_label }}" class="form-label fw-semibold">
+                Return&nbsp;period
+              </label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
+                {{ form.return_due_date }}
+              </div>
+              {% for error in form.return_due_date.errors %}
+                <div class="small text-danger">{{ error }}</div>
+              {% endfor %}
+              <small class="form-text text-muted">Select the day you will return the item.</small>
+            </div>
+
+            {# Optional note #}
+            <div class="mb-4">
+              <label for="{{ form.note.id_for_label }}" class="form-label fw-semibold">
+                Note&nbsp;<span class="text-muted small">(optional)</span>
+              </label>
+              {{ form.note }}
+              {% for error in form.note.errors %}
+                <div class="small text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            {# Buttons #}
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle me-1"></i>Cancel
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-send-check-fill me-1"></i>Submit&nbsp;request
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </div>
 </div>
 {% endblock %}

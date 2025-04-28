@@ -1,0 +1,157 @@
+{% extends "toolhub/base.html" %}
+{% load static %}
+{% load form_tags %} 
+
+{% block title %}{{ item.name }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'toolhub/css/item_detail.css' %}">
+
+<div class="container-lg my-5">
+
+  <!---- breadcrumb & title ---->
+  <nav class="mb-4" aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><a href="{% url 'tools_page' %}">Tools</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-5">
+
+    <!---- left column : image & meta ---->
+    <aside class="col-lg-5">
+
+      <div class="card shadow-sm mb-4">
+        {% if item.image %}
+          <img src="{{ item.image.url }}" class="card-img-top object-fit-cover ratio ratio-4x3" alt="{{ item.name }}">
+        {% else %}
+          <img src="{% static 'toolhub/images/default_tool.png' %}" class="card-img-top object-fit-cover ratio ratio-4x3" alt="default">
+        {% endif %}
+        <div class="card-body">
+          <h2 class="h4 fw-bold mb-2">{{ item.name }}</h2>
+          <p class="text-muted mb-3">{{ item.description|default:"No description available." }}</p>
+
+          <div class="d-flex flex-wrap gap-2">
+            <!-- location badge -->
+            <span class="badge bg-info text-dark"><i class="bi bi-geo-alt-fill me-1"></i>{{ item.get_location_display }}</span>
+
+            <!-- status badge -->
+            {% with st=item.user_status %}
+            {% if st == "Available" %}
+                <span class="badge bg-success">
+                    <i class="bi bi-check-circle-fill me-1"></i>{{ st }}
+                </span>
+            {% elif st == "Already requested" %}
+                <span class="badge bg-warning text-dark">
+                    <i class="bi bi-clock-history me-1"></i>{{ st }}
+                </span>
+            {% elif st == "Borrowed" %}
+                <span class="badge bg-secondary">
+                    <i class="bi bi-hourglass-split me-1"></i>{{ st }}
+                </span>
+            {% else %}
+                <span class="badge bg-secondary">{{ st }}</span>
+            {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-center align-items-center gap-2 mt-auto">
+        {% if user.is_authenticated and user.role == "librarian" %}
+          <a href="{% url 'edit_item' item.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+        {% endif %}
+        {% if item.status == "available" %}
+          {% if user.is_authenticated %}
+            {% if user.role == "patron" %}
+              <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary btn-sm">Request</a>
+            {% endif %}
+          {% else %}
+            <a href="{% url 'account_login' %}" class="btn btn-outline-primary btn-sm">Sign in to Request</a>
+          {% endif %}
+        {% else %}
+          {% if user.is_authenticated and item.borrower and item.borrower.pk == user.pk %}
+            <a href="{% url 'return_item' item.id %}" class="btn btn-danger btn-sm">Return</a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </aside>
+
+    <!---- right column : review form & list ---->
+    <section class="col-lg-7">
+
+      <!-- Review form (patrons only) -->
+      {% if user.is_authenticated and user.role == "patron" %}
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light fw-semibold"><i class="bi bi-pencil-square me-1"></i>Leave&nbsp;a&nbsp;review</div>
+        <div class="card-body">
+
+          <form method="post" novalidate class="row g-3 align-items-end">
+            {% csrf_token %}
+
+            <!-- rating (1-5) as stars -->
+            <div class="col-12 col-md-4">
+              <label class="form-label">Your rating</label>
+              <div class="star-rating">
+                {% for i in "54321" %}
+                  <input type="radio" name="rating" id="r{{ i }}" value="{{ i }}">
+                  <label for="r{{ i }}"><i class="bi bi-star-fill"></i></label>
+                {% endfor %}
+              </div>
+              {% for err in form.rating.errors %}
+                <div class="invalid-feedback d-block">{{ err }}</div>
+              {% endfor %}
+            </div>
+
+            <!-- comment -->
+            <div class="col-12 col-md-8">
+              <label class="form-label">Comment <span class="text-muted">(optional)</span></label>
+              {{ form.comment|add_class:"form-control" }}
+              {% for err in form.comment.errors %}
+                <div class="invalid-feedback d-block">{{ err }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="col-12 text-end">
+              <button class="btn btn-primary px-4"><i class="bi bi-send-check me-1"></i>Submit</button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Reviews list -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-light fw-semibold"><i class="bi bi-chat-dots me-1"></i>Reviews ({{ reviews.count }})</div>
+        <div class="list-group list-group-flush">
+          {% if reviews %}
+            {% for rev in reviews %}
+              <div class="list-group-item py-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <div class="fw-semibold">{{ rev.user.full_name|default:rev.user.username }}</div>
+                  <small class="text-muted">{{ rev.created_at|date:"M d, Y" }}</small>
+                </div>
+                <div class="text-warning mb-1">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= rev.rating %}
+                      <i class="bi bi-star-fill"></i>
+                    {% else %}
+                      <i class="bi bi-star"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                <p class="mb-0">{{ rev.comment|default:"—" }}</p>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="list-group-item py-4 text-center text-muted">No reviews yet.</div>
+          {% endif %}
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+</div>
+{% endblock %}

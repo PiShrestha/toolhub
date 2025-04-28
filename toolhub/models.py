@@ -104,6 +104,10 @@ class Item(models.Model):
         blank=True,
         null=True,
     )
+    
+    @property
+    def average_rating(self):
+        return self.reviews.aggregate(avg=models.Avg("rating"))["avg"] or 0
 
     @property
     def image_url(self):
@@ -209,6 +213,7 @@ class BorrowRequest(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="borrow_requests")
     request_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    borrow_start_date = models.DateField(null=True, blank=True)
     return_due_date = models.DateField(null=True, blank=True)
     note = models.TextField(blank=True, null=True)
 

@@ -119,8 +119,9 @@ class BorrowRequestForm(forms.ModelForm):
 
     class Meta:
         model = BorrowRequest
-        fields = ["return_due_date", "note"]
+        fields = ["borrow_start_date", "return_due_date", "note"]
         widgets = {
+            "borrow_start_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
             "return_due_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
         }
 
