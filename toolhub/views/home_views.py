@@ -25,13 +25,16 @@ def home(request):
     # Set already_requested for each item
     for item in items:
         item.already_requested = False
-        item.user_status = item.status_for_user(request.user)
-        if request.user.is_authenticated and request.user.role == "patron":
-            item.already_requested = BorrowRequest.objects.filter(
-                item=item,
-                user=request.user,
-                status__in=["pending", "approved"]
-            ).exists()
+        if request.user.is_authenticated:
+            item.user_status = item.status_for_user(request.user)
+            if request.user.role == "patron":
+                item.already_requested = BorrowRequest.objects.filter(
+                    item=item,
+                    user=request.user,
+                    status__in=["pending", "approved"]
+                ).exists()
+        else:
+            item.user_status = item.status_for_user(None)
 
     return render(
         request,

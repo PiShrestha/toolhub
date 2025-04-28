@@ -118,7 +118,7 @@ class Item(models.Model):
         """
         Return a display string specific to the given user.
         """
-        if not user.is_authenticated:
+        if user == None or not user.is_authenticated:
             if self.status == "currently_borrowed":
                 return "Currently Borrowed"
 
