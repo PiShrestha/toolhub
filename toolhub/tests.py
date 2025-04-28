@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 from unittest.mock import patch
-from .models import CustomUser, Item, Collection
+from .models import CustomUser, Item, Collection, BorrowRequest
 from django.core.files.storage import FileSystemStorage, default_storage
 import os
 
@@ -112,13 +112,13 @@ class HomeViewTests(TestCase):
     def test_patron_home_template(self):
         self.client.login(username='patron', password='pass123')
         response = self.client.get(reverse('home'))
-        self.assertTemplateUsed(response, "toolhub/patron_home.html")
+        self.assertTemplateUsed(response, "toolhub/home/home.html")
         self.assertEqual(response.context['user'].role, 'patron')
 
     def test_librarian_home_template(self):
         self.client.login(username='librarian', password='pass123')
         response = self.client.get(reverse('home'))
-        self.assertTemplateUsed(response, "toolhub/librarian_home.html")
+        self.assertTemplateUsed(response, "toolhub/home/home.html")
         self.assertEqual(response.context['user'].role, 'librarian')
 
 SMALL_GIF = (
@@ -475,18 +475,96 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Collection.objects.filter(uuid=collection.uuid).exists())
 
-    def test_promote_user_view(self):
-        self.client.login(username="patron", password="pass")
-        response = self.client.get(reverse("promote_user"))
-        self.assertEqual(response.status_code, 302)
-        response = self.client.post(reverse("promote_user"), {"email": "someone@test.com"})
-        self.assertEqual(response.status_code, 302)
-
-        self.client.login(username="librarian", password="pass")
-        user_to_promote = CustomUser.objects.create_user(
-            username="user_to_promote", email="promote@test.com", password="pass", role="patron"
+class BorrowViewsTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        # Create librarian and patron users.
+        self.librarian = CustomUser.objects.create_user(
+            username="lib", email="librarian@test.com", password="pass", role="librarian"
         )
-        response = self.client.post(reverse("promote_user"), {"email": "promote@test.com"})
+        self.patron = CustomUser.objects.create_user(
+            username="patron", email="patron@test.com", password="pass", role="patron"
+        )
+        # Create an item that is available.
+        self.item = Item.objects.create(
+            name="Saw",
+            identifier="saw001",
+            status="available",
+            location="main",
+            description="Hand saw",
+            image="",
+        )
+        # Create an existing borrow request from the patron.
+        self.borrow_request = BorrowRequest.objects.create(
+            item=self.item,
+            user=self.patron,
+            status="pending",
+        )
+
+    def test_request_borrow_already_requested(self):
+        """
+        Verify that if a patron has a pending (or approved) request for an item,
+        a duplicate borrow request is not allowed.
+        """
+        self.client.login(username="patron", password="pass")
+        # Attempt to request borrowing the same item a second time.
+        response = self.client.post(reverse("request_borrow", args=[self.item.id]), {})
+        # The view should redirect back, showing a warning message.
         self.assertEqual(response.status_code, 302)
-        user_to_promote.refresh_from_db()
-        self.assertEqual(user_to_promote.role, "librarian")
+        # There should still be only one request.
+        self.assertEqual(BorrowRequest.objects.filter(item=self.item, user=self.patron).count(), 1)
+
+    def test_request_borrow_success(self):
+        """
+        Verify that a patron can submit a borrow request for an item they have not requested before.
+        """
+        # Create a new item that has not been requested yet.
+        item2 = Item.objects.create(
+            name="Hammer",
+            identifier="hammer002",
+            status="available",
+            location="main",
+            description="A sturdy hammer",
+            image="",
+        )
+        self.client.login(username="patron", password="pass")
+        # Submit the borrow request. (Assuming BorrowRequestForm does not require additional fields.)
+        response = self.client.post(reverse("request_borrow", args=[item2.id]), {})
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(BorrowRequest.objects.filter(item=item2, user=self.patron).exists())
+
+    def test_cancel_borrow_request(self):
+        """
+        Verify that a patron can cancel their own pending borrow request.
+        """
+        self.client.login(username="patron", password="pass")
+        response = self.client.post(reverse("cancel_borrow_request", args=[self.borrow_request.id]))
+        self.assertRedirects(response, reverse("my_borrow_requests"))
+        # The borrow request should be deleted.
+        self.assertFalse(BorrowRequest.objects.filter(id=self.borrow_request.id).exists())
+
+    def test_approve_borrow(self):
+        """
+        Verify that a librarian can approve a pending borrow request.
+        Approving should set the borrow request status to "approved" and update the item's status to "currently_borrowed".
+        """
+        self.client.login(username="lib", password="pass")
+        response = self.client.post(reverse("approve_borrow", args=[self.borrow_request.id]))
+        self.assertRedirects(response, reverse("my_borrow_requests"))
+        self.borrow_request.refresh_from_db()
+        self.assertEqual(self.borrow_request.status, "approved")
+        self.item.refresh_from_db()
+        self.assertEqual(self.item.status, "currently_borrowed")
+
+    def test_deny_borrow(self):
+        """
+        Verify that a librarian can deny a pending borrow request.
+        Denying should set the borrow request status to "denied" and ensure the item's status remains "available".
+        """
+        self.client.login(username="lib", password="pass")
+        response = self.client.post(reverse("deny_borrow", args=[self.borrow_request.id]))
+        self.assertRedirects(response, reverse("my_borrow_requests"))
+        self.borrow_request.refresh_from_db()
+        self.assertEqual(self.borrow_request.status, "denied")
+        self.item.refresh_from_db()
+        self.assertEqual(self.item.status, "available")
