@@ -12,7 +12,7 @@ def search_items(request):
             "name":   i.name,
             "title":  i.name,
             "status": i.status,
-            "status_display": i.get_status_display(),
+            "status_display": i.status_for_user(request.user),
         }
         for i in items
     ]

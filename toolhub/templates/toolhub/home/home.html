@@ -1,6 +1,7 @@
 {% extends "toolhub/base.html" %}
 {% load static %}
 {% block title %}Home{% endblock %}
+{% load socialaccount %}
 
 {% block content %}
 <div class="container mt-5">
@@ -8,7 +9,7 @@
         <div class="alert alert-info text-center mb-5 py-4 rounded shadow-sm" style="background-color: #e3f7ff; border: 1px solid #b3e5fc;">
             <h4 class="fw-bold text-primary mb-3">Sign in to ToolHub</h4>
             <p class="text-muted mb-4">Sign in with Google to borrow items or create collections.</p>
-            <a href="{% url 'account_login' %}" class="btn btn-outline-primary btn-lg d-inline-flex align-items-center gap-2 px-4 py-2">
+            <a href="{% provider_login_url 'google' %}" class="btn btn-outline-primary btn-lg d-inline-flex align-items-center gap-2 px-4 py-2">
                 <img src="{% static 'toolhub/images/google_logo.svg' %}" alt="Google" style="height:24px;">
                 <span>Sign in with Google</span>
             </a>
@@ -66,16 +67,16 @@
             <!-- Footer Buttons -->
             <div class="d-flex justify-content-center align-items-center gap-2">
                 <span class="badge d-flex rounded-pill justify-content-center align-items-center {% if item.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}">
-                    {{ item.get_status_display  }}
+                    {{ item.user_status }}
                 </span>
                 {% if user.role == "librarian" %}
                 <a href="{% url 'edit_item' item.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
                 {% endif %}
                 {% if item.status == "available" %}
                     {% if user.is_authenticated %}
-                  
+                        {% if user.role == "patron" %}
                         <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary">Request</a>
-
+                        {% endif %}
                     {% else %}
                         <a href="{% url 'account_login' %}" class="btn btn-outline-primary">Sign in to Request</a>
                     {% endif %}

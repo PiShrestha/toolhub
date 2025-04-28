@@ -114,6 +114,25 @@ class Item(models.Model):
     def __str__(self):
         return self.name
 
+    def status_for_user(self, user):
+        """
+        Return a display string specific to the given user.
+        """
+        if not user.is_authenticated:
+            if self.status == "currently_borrowed":
+                return "Currently Borrowed"
+
+        # Case 1 – the user already has an approved or pending request
+        if self.borrow_requests.filter(
+                user=user, status__in=["pending", "approved"]).exists():
+            return "Already requested"
+
+        # Case 2 – someone else has borrowed it
+        if self.status == "currently_borrowed" and self.borrower != user:
+            return "Borrowed"
+
+        return self.get_status_display()
+
     def mark_as_borrowed(self):
         """
         Mark the item as currently borrowed.
