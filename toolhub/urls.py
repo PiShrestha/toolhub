@@ -36,12 +36,6 @@ def access_denied(request):
     return render(request, "toolhub/access_denied.html")
 
 urlpatterns = [
-    # Admin
-    path("admin/", admin.site.urls),
-
-    # Authentication
-    path("accounts/", include("allauth.urls")),
-
     # Home
     path("", home, name="home"),
 
