@@ -8,6 +8,14 @@ from django.core.files.storage import FileSystemStorage, default_storage
 import os
 
 
+# Disable SSL redirect/cookie‐secure in tests
+TEST_SETTINGS = {
+    "SECURE_SSL_REDIRECT": False,
+    "SESSION_COOKIE_SECURE": False,
+    "CSRF_COOKIE_SECURE": False,
+}
+
+@override_settings(**TEST_SETTINGS)
 class CustomUserModelTests(TestCase):
     def setUp(self):
         CustomUser._meta.get_field('profile_picture').storage = FileSystemStorage()
@@ -93,6 +101,7 @@ class CustomUserModelTests(TestCase):
         self.assertEqual(self.user.profile_picture_url, default_url)
 
 
+@override_settings(**TEST_SETTINGS)
 class HomeViewTests(TestCase):
     def setUp(self):
         self.client = Client()
@@ -130,7 +139,7 @@ SMALL_GIF = (
     b'\x01\x00\x3b'
 )
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'test_media'))
+@override_settings(**TEST_SETTINGS, MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'test_media'))
 class ItemTests(TestCase):
     def setUp(self):
         Item._meta.get_field('image').storage = FileSystemStorage()
@@ -205,7 +214,7 @@ class ItemTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Item.objects.filter(identifier="view_test_item_001").exists())
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'test_media'))
+@override_settings(**TEST_SETTINGS, MEDIA_ROOT=os.path.join(settings.BASE_DIR, 'test_media'))
 class CollectionTests(TestCase):
     def setUp(self):
         Collection._meta.get_field('image').storage = FileSystemStorage()
@@ -355,6 +364,7 @@ class CollectionTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Collection.objects.filter(uuid=collection.uuid).exists())
 
+@override_settings(**TEST_SETTINGS)
 class ViewTests(TestCase):
     def setUp(self):
         self.client = Client()
@@ -475,6 +485,7 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Collection.objects.filter(uuid=collection.uuid).exists())
 
+@override_settings(**TEST_SETTINGS)
 class BorrowViewsTests(TestCase):
     def setUp(self):
         self.client = Client()
