@@ -1,4 +1,6 @@
 {% load static %}
+{% load socialaccount %}
+
 <div class="col-md-3 mb-4 text-center d-flex flex-column">
   <div class="card shadow-sm h-100 position-relative d-flex flex-column">
 
@@ -57,7 +59,7 @@
               <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary btn-sm w-100">Request</a>
             {% endif %}
           {% else %}
-            <a href="{% url 'account_login' %}" class="btn btn-outline-primary btn-sm w-100">Sign in to Request</a>
+            <a href="{% provider_login_url 'google' %}" class="btn btn-outline-primary btn-sm w-100">Sign in to Request</a>
           {% endif %}
         {% else %}
           {% if user.is_authenticated and item.borrower and item.borrower.pk == user.pk %}
