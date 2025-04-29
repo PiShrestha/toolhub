@@ -75,7 +75,7 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-LOGIN_URL = "/accounts/login/"
+LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = '/'  # Redirect users after login
 LOGOUT_REDIRECT_URL = '/'  # Redirect users after logout
 

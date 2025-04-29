@@ -67,7 +67,9 @@
               <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary btn-sm">Request</a>
             {% endif %}
           {% else %}
-            <a href="{% url 'account_login' %}" class="btn btn-outline-primary btn-sm">Sign in to Request</a>
+            <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm">
+              Sign in to Request
+            </a>
           {% endif %}
         {% else %}
           {% if user.is_authenticated and item.borrower and item.borrower.pk == user.pk %}

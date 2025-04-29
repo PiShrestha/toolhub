@@ -1,4 +1,5 @@
 {% load static %}
+{% load socialaccount %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -68,30 +69,14 @@
                     </form>
 
                     <!-- Profile and Logout -->
-                    <ul class="navbar-nav" id="navbarNav">
-                        {% if user.is_authenticated %}
-                            {% if user.role == "librarian" %}
-                            <li class="nav-item">
-                                <a class="nav-link fw-semibold d-flex align-items-center" href="{% url 'search_users' %}">
-                                    <i class="bi bi-person-plus fs-3 me-2"></i> Promote User
-                                </a>
-                            </li>
-                            {% endif %}
-                            <li class="nav-item">
-                                <a class="nav-link fw-semibold" href="{% url 'profile' %}">
-                                    <i class="bi bi-person-circle fs-3"></i>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-danger fw-semibold" href="{% url 'logout' %}">
-                                    <i class="bi bi-box-arrow-right fs-3"></i>
-                                </a>
-                            </li>
-                        {% else %}
-                            <li class="nav-item">
-                                <a class="nav-link fw-semibold" href="{% url 'account_login' %}">Login</a>
-                            </li>
-                        {% endif %}
+                    <ul class="navbar-nav ms-auto">
+                      {% if not user.is_authenticated %}
+                        <li class="nav-item">
+                         <a class="nav-link" href="{% url 'login' %}">Sign In</a>
+                        </li>
+                      {% else %}
+                        <!-- your logout link, profile, etc. -->
+                      {% endif %}
                     </ul>
                 </div>
             </div>

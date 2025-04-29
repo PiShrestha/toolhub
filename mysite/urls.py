@@ -16,9 +16,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.urls')),  # Allauth handles authentication
-    path('', include('toolhub.urls'))
+
+    # /login/ → /accounts/google/login/ (hard‑coded)
+    path(
+        'login/',
+        RedirectView.as_view(
+            url='/accounts/google/login/',
+            permanent=False,
+        ),
+        name='login'
+    ),
+
+    path('accounts/', include('allauth.urls')),
+    path('', include('toolhub.urls')),
 ]
