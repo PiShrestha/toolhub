@@ -75,7 +75,11 @@
                          <a class="nav-link" href="{% url 'login' %}">Sign In</a>
                         </li>
                       {% else %}
-                        <!-- your logout link, profile, etc. -->
+                        <li class="nav-item">
+                            <a class="nav-link text-danger fw-semibold" href="{% url 'logout' %}">
+                                <i class="bi bi-box-arrow-right fs-3"></i>
+                            </a>
+                        </li>
                       {% endif %}
                     </ul>
                 </div>
