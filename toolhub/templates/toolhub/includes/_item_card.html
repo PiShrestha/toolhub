@@ -55,7 +55,7 @@
       <div class="mt-auto">
         {% if item.status == "available" %}
           {% if user.is_authenticated %}
-            {% if user.role == "patron" %}
+            {% if user.role == "patron" && item.user_status != "Already requested"%}
               <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary btn-sm w-100">Request</a>
             {% endif %}
           {% else %}
