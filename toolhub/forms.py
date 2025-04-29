@@ -130,9 +130,16 @@ class BorrowRequestForm(forms.ModelForm):
         Ensure the return due date is in the future.
         """
         return_due_date = self.cleaned_data.get("return_due_date")
-        if return_due_date and return_due_date <= timezone.now().date():
-            raise ValidationError("The return due date must be in the future.")
+        borrow_start_date = self.cleaned_data.get("borrow_start_date")
+        if return_due_date and return_due_date <= timezone.localtime(timezone.now()).date() and return_due_date <= borrow_start_date:
+            raise ValidationError("The return due date must be in the future after the borrow date.")
         return return_due_date
+    
+    def clean_borrow_start_date(self):
+        borrow_start_date = self.cleaned_data.get("borrow_start_date")
+        if borrow_start_date and borrow_start_date <= timezone.localtime(timezone.now()).date():
+            raise ValidationError("The borrow date cannot be in the past.")
+        return borrow_start_date
 
 
 class PromoteUserForm(forms.Form):
