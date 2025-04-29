@@ -75,6 +75,17 @@
                          <a class="nav-link" href="{% url 'login' %}">Sign In</a>
                         </li>
                       {% else %}
+                        {% if user.role == "librarian" %}
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold d-flex align-items-center" href="{% url 'search_users' %}">
+                                    <i class="bi bi-person-plus fs-3 me-2"></i> Promote User
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold" href="{% url 'profile' %}">
+                                <i class="bi bi-person-circle fs-3"></i>
+                            </a>
                         <li class="nav-item">
                             <a class="nav-link text-danger fw-semibold" href="{% url 'logout' %}">
                                 <i class="bi bi-box-arrow-right fs-3"></i>
