@@ -63,9 +63,7 @@
         {% endif %}
         {% if item.status == "available" %}
           {% if user.is_authenticated %}
-            {% if user.role == "patron" %}
               <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary btn-sm">Request</a>
-            {% endif %}
           {% else %}
             <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm">
               Sign in to Request

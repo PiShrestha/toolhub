@@ -55,9 +55,7 @@
       <div class="mt-auto">
         {% if item.status == "available" %}
           {% if user.is_authenticated %}
-            {% if user.role == "patron"%}
               <a href="{% url 'request_borrow' item.id %}" class="btn btn-primary btn-sm w-100">Request</a>
-            {% endif %}
           {% else %}
             <a href="{% provider_login_url 'google' %}" class="btn btn-outline-primary btn-sm w-100">Sign in to Request</a>
           {% endif %}
