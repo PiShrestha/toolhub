@@ -43,18 +43,16 @@ class CustomUserAdmin(UserAdmin):
 
     readonly_fields = ('date_joined', 'last_login')
 
-    # Optional: Custom actions
-    actions = ['make_active', 'make_inactive']
+    # Add a bulk action
+    actions = ['make_active', 'make_inactive', 'promote_to_librarian']
 
-    def make_active(self, request, queryset):
-        queryset.update(is_active=True)
-    make_active.short_description = "Mark selected users as active"
-
-    def make_inactive(self, request, queryset):
-        queryset.update(is_active=False)
-    make_inactive.short_description = "Mark selected users as inactive"
+    def promote_to_librarian(self, request, queryset):
+        queryset.update(role='librarian')
+    promote_to_librarian.short_description = "Promote selected users to librarian"
 
     def get_readonly_fields(self, request, obj=None):
-        if not request.user.is_staff or (obj and obj.role == "patron"):
-            return self.readonly_fields + ("role",)
+        # Only superusers may edit the 'role' field
+        if not request.user.is_superuser:
+            # lock down role for staff/patrons
+            return self.readonly_fields + ('role',)
         return self.readonly_fields
